@@ -35,19 +35,22 @@ class Bird(Agent):
         if neighbours_count != 0:
             sum_velocities = Vector2()
             separation = Vector2()
-        
             sum_positions = Vector2()
             collect_agents = list(self.in_proximity_accuracy())
             for agent, _ in collect_agents:
                 sum_velocities += agent.move.normalize()
                 separation += self.pos - agent.pos
                 sum_positions += agent.pos
-
-            sum_velocities /= neighbours_count
+            # alignment
+            sum_velocities = sum_velocities / neighbours_count
             alignment = sum_velocities - self.move
-            avg_pos_neighbouring_birds = sum_positions / len(collect_agents)
+            # separation
+            separation = separation / neighbours_count
+            # cohesion
+            avg_pos_neighbouring_birds = sum_positions / neighbours_count
             cohesion_force = avg_pos_neighbouring_birds - self.pos
             cohesion = cohesion_force - self.move
+
             f_total = (alignment*FlockingConfig().weights()[0] + separation*FlockingConfig().weights()[1] + cohesion*FlockingConfig().weights()[2])/self.config.mass
 
             self.move += f_total
