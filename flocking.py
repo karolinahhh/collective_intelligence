@@ -29,7 +29,7 @@ class Bird(Agent):
 
     def change_position(self):
         # Pac-man-style teleport to the other end of the screen when trying to escape
-        self.there_is_no_escape()
+        # self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
         
         if neighbours_count != 0:
@@ -57,7 +57,49 @@ class Bird(Agent):
             if self.move.length() > self.config.movement_speed:
                 self.move = self.move.normalize() * self.config.movement_speed
 
+        changed = self.there_is_no_escape()
+
+        prng = self.shared.prng_move
+
+        # Always calculate the random angle so a seed could be used.
+        deg = prng.uniform(-30, 30)
+
+        # Only update angle if the agent was teleported to a different area of the simulation.
+        if changed:
+            self.move.rotate_ip(deg)
+
+        # Obstacle Avoidance
+        obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
+        collision = bool(obstacle_hit)
+
+        # Reverse direction when colliding with an obstacle.
+        if collision and not self._still_stuck:
+            self.move.rotate_ip(180)
+            self._still_stuck = True
+
+        if not collision:
+            self._still_stuck = False
+
+        # Random opportunity to slightly change angle.
+        # Probabilities are pre-computed so a seed could be used.
+        should_change_angle = prng.random()
+        deg = prng.uniform(-10, 10)
+
+        # Only allow the angle opportunity to take place when no collisions have occured.
+        # This is done so an agent always turns 180 degrees. Any small change in the number of degrees
+        # allows the agent to possibly escape the obstacle.
+        if not collision and not self._still_stuck and 0.25 > should_change_angle:
+            self.move.rotate_ip(deg)
+
         self.pos += self.move * self.config.delta_time
+
+        # for obstacle_intersection in self.obstacle_intersections():
+        #     # Handle obstacle intersection as desired
+        #     # For example, you can print the center coordinates
+        #     print(f"Obstacle intersection: {obstacle_intersection}")
+
+
+
 
 
 class Selection(Enum):
@@ -108,6 +150,7 @@ class FlockingLive(Simulation):
             seed=1,
         )
     )
+    .spawn_obstacle("images/triangle@200px.png", 300,300)
     .batch_spawn_agents(50, Bird, images=["images/white_bird.png"])
     .run()
 )
