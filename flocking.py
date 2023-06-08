@@ -24,6 +24,11 @@ class FlockingConfig(Config):
 class Bird(Agent):
     config: FlockingConfig
 
+    # Necessary for the "_still_stuck" to work with pg.sprite.collide_circle
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._still_stuck = False  # Initialize _still_stuck attribute to False
+
     def get_alignment_weight(self):
         return self.config.alignment_weight
 
@@ -31,7 +36,7 @@ class Bird(Agent):
         # Pac-man-style teleport to the other end of the screen when trying to escape
         # self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
-        
+
         if neighbours_count != 0:
             sum_velocities = Vector2()
             separation = Vector2()
@@ -51,7 +56,8 @@ class Bird(Agent):
             cohesion_force = avg_pos_neighbouring_birds - self.pos
             cohesion = cohesion_force - self.move
 
-            f_total = (alignment*FlockingConfig().weights()[0] + separation*FlockingConfig().weights()[2] + cohesion*FlockingConfig().weights()[1])/self.config.mass
+            f_total = (alignment * FlockingConfig().weights()[0] + separation * FlockingConfig().weights()[
+                2] + cohesion * FlockingConfig().weights()[1]) / self.config.mass
 
             self.move += f_total
             if self.move.length() > self.config.movement_speed:
@@ -69,7 +75,7 @@ class Bird(Agent):
             self.move.rotate_ip(deg)
 
         # Obstacle Avoidance
-        obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
+        obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_circle)  # type: ignore
         collision = bool(obstacle_hit)
 
         # Reverse direction when colliding with an obstacle.
@@ -99,9 +105,6 @@ class Bird(Agent):
         #     print(f"Obstacle intersection: {obstacle_intersection}")
 
 
-
-
-
 class Selection(Enum):
     ALIGNMENT = auto()
     COHESION = auto()
@@ -122,8 +125,8 @@ class FlockingLive(Simulation):
 
     def before_update(self):
         super().before_update()
-        #self.screen.fill((0, 0, 255))
-        #self.simulation.screen.fill((0, 0, 255))
+        # self.screen.fill((0, 0, 255))
+        # self.simulation.screen.fill((0, 0, 255))
 
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
@@ -141,6 +144,7 @@ class FlockingLive(Simulation):
         a, c, s = self.config.weights()
         print(f"A: {a:.1f} - C: {c:.1f} - S: {s:.1f}")
 
+
 (
     FlockingLive(
         FlockingConfig(
@@ -150,7 +154,7 @@ class FlockingLive(Simulation):
             seed=1,
         )
     )
-    .spawn_obstacle("images/triangle@200px.png", 300,300)
-    .batch_spawn_agents(50, Bird, images=["images/white_bird.png"])
-    .run()
+        .spawn_obstacle("images/triangle@200px.png", 375, 375)
+        .batch_spawn_agents(50, Bird, images=["images/white_bird.png"])
+        .run()
 )
