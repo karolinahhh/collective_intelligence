@@ -51,7 +51,7 @@ class Bird(Agent):
             cohesion_force = avg_pos_neighbouring_birds - self.pos
             cohesion = cohesion_force - self.move
 
-            f_total = (alignment*FlockingConfig().weights()[0] + separation*FlockingConfig().weights()[1] + cohesion*FlockingConfig().weights()[2])/self.config.mass
+            f_total = (alignment*FlockingConfig().weights()[0] + separation*FlockingConfig().weights()[2] + cohesion*FlockingConfig().weights()[1])/self.config.mass
 
             self.move += f_total
             if self.move.length() > self.config.movement_speed:
