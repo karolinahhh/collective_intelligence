@@ -9,7 +9,7 @@ from vi.config import Config, dataclass, deserialize
 @deserialize
 @dataclass
 class FlockingConfig(Config):
-    alignment_weight: float = 0.5
+    alignment_weight: float = 0.8
     cohesion_weight: float = 0.5
     separation_weight: float = 0.5
 
@@ -57,7 +57,7 @@ class Bird(Agent):
             if self.move.length() > self.config.movement_speed:
                 self.move = self.move.normalize() * self.config.movement_speed
 
-        self.pos += self.move
+        self.pos += self.move * self.config.delta_time
 
 
 class Selection(Enum):
@@ -80,6 +80,8 @@ class FlockingLive(Simulation):
 
     def before_update(self):
         super().before_update()
+        #self.screen.fill((0, 0, 255))
+        #self.simulation.screen.fill((0, 0, 255))
 
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
@@ -97,7 +99,6 @@ class FlockingLive(Simulation):
         a, c, s = self.config.weights()
         print(f"A: {a:.1f} - C: {c:.1f} - S: {s:.1f}")
 
-
 (
     FlockingLive(
         FlockingConfig(
@@ -107,6 +108,6 @@ class FlockingLive(Simulation):
             seed=1,
         )
     )
-    .batch_spawn_agents(50, Bird, images=["images/bird.png"])
+    .batch_spawn_agents(50, Bird, images=["images/white_bird.png"])
     .run()
 )
