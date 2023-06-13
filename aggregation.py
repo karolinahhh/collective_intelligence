@@ -30,20 +30,6 @@ class Cockroach(Agent):
         neighbours_count = self.in_proximity_accuracy().count()
         p = self.probability(0.01)
 
-        # if self.on_site():
-        #     if p:
-        #         self.freeze_movement()
-        #     else:
-                
-        #         self.pos += self.move * self.config.delta_time
-        # else:
-        #     self.continue_movement()
-
-        # if neighbours_count > 1:
-        #     if p:
-        #         self.pos += self.move * self.config.delta_time
-        # else:
-        #     self.pos += self.move * self.config.delta_time
 
         if neighbours_count > 1 and self.on_site():
             if p: 
@@ -63,14 +49,14 @@ class AggregationLive(Simulation):
     AggregationLive(
         AggregationConfig(
             image_rotation=True,
-            movement_speed=1,
+            movement_speed=3,
             radius=50,
             seed=1,
         )
     )
         # .spawn_obstacle("images/triangle@200px.png", 300,300)
         # .spawn_obstacle("images/blue_circle.png", 200, 500)
-        .spawn_obstacle("images/blue_circle.png", 500, 200)
+        #.spawn_obstacle("images/blue_circle.png", 500, 200)
         .spawn_site("images/light_blue_circle.png", 500, 200)
         # .spawn_obstacle("images/blue_circle.png", 400, 400)
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
