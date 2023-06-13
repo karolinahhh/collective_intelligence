@@ -39,34 +39,19 @@ class Cockroach(Agent):
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
         p = self.probability(0.01)
-        # p_leave = self.probability(0.01) / (1 + neighbours_count)
-        p_leave = 0.9
+        p_leave = self.probability(0.01) / (1 + neighbours_count)
+        # p_leave = 0.9
         p_join = 1 - p_leave
         timer = 10 # has to be integer
         start_time = time.time()
         randomx = random.random()
-
-
-        # if self.on_site(): #
-        #     if p_join > randomx: # still
-        #         self.freeze_movement()
-        #
-        #     else: # leaving the site
-        #         if (time.time() - start_time) >= timer:
-        #             self.continue_movement()
-        # else:
-        #     # if p_join > randomx: # join an aggregate
-        #     #     if (time.time() - start_time) >= timer:
-        #     #         self.pos += self.move * self.config.delta_time
-        #     # else: # wandering
-        #     self.pos += self.move * self.config.delta_time
-
-
         if self.state == "WANDERING":
-            self.pos += self.move * self.config.delta_time # wandering
-            if self.on_site() and p_join > randomx:
+            self.pos += self.move * self.config.delta_time  # wandering
+            if not self.check_site and p_join > randomx:
+                self.check_site = False
                 self.state = "JOIN"
                 self.config.counter = 0
+
         if self.state == "JOIN":
             self.config.counter += 1
             if self.config.counter > 50 and self.on_site():
@@ -75,16 +60,14 @@ class Cockroach(Agent):
             else:
                 self.pos += self.move * self.config.delta_time
 
-                    # if p_leave > randomx:
         if self.state == "STILL":
-            self.freeze_movement()
             if p_leave > randomx:
                 self.state = "LEAVING"
                 self.config.counter = 0
 
         if self.state == "LEAVING":
             self.config.counter += 1
-            if self.config.counter > 50 and self.on_site():
+            if self.config.counter > 50:
                 self.state = "WANDERING"
                 self.config.counter = 0
 
@@ -135,7 +118,7 @@ class AggregationLive(Simulation):
     AggregationLive(
         AggregationConfig(
             image_rotation=True,
-            movement_speed=1,
+            movement_speed=5,
             radius=50,
             seed=1,
         )
