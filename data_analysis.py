@@ -1,6 +1,6 @@
 import polars as pl
 
-df = pl.read_csv("/Users/Karolynn/Desktop/ProjectCI/collective_intelligence/aggregation.csv")
+df = pl.read_csv("aggregation.csv")
 
 print(
     df.lazy()
@@ -12,7 +12,7 @@ print(
             pl.col("site_id").eq(1).sum().alias("site B")
         ]
     )
-    .with_columns((pl.col("site A") / pl.com("site B")).alias("ratio"))
+    .with_columns((pl.col("site A") / pl.col("site B")).alias("ratio"))
     .sort("frame")
     .collect()
 )
