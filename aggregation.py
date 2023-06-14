@@ -3,7 +3,9 @@ from typing import Optional
 import random
 import time
 import pygame as pg
+import numpy as np
 import polars as pl
+import pygame.display
 from pygame.math import Vector2
 from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
@@ -35,9 +37,12 @@ class Cockroach(Agent):
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
 
-        p_leave = 0.01 / (1 + neighbours_count)
-        p_join = 1 - p_leave
+        p_join = 1 / (1 + np.exp(-5*neighbours_count))
+        # print(p_leave)
+        p_leave = 1 - p_join
         randomx = random.random()
+        # screen_info = pygame.display.Info()
+        # print(screen_info)
 
         if not self.on_site():
             self.check_site = False
@@ -51,7 +56,7 @@ class Cockroach(Agent):
 
         if self.state == "JOIN":
             self.config.counter1 += 1
-            if self.config.counter1 > 100 and self.on_site():
+            if self.config.counter1 > 25 and self.on_site():
                 self.state = "STILL"
                 self.config.counter1 = 0
             else:
@@ -65,10 +70,10 @@ class Cockroach(Agent):
 
         if self.state == "LEAVING":
             self.config.counter += 1
-            # if self.config.counter > 2000:
-            if self.config.counter > 700:
+            if self.config.counter > 50:
                 self.state = "WANDERING"
                 self.config.counter = 0
+
 
 class AggregationLive(Simulation):
     config: AggregationConfig
@@ -77,7 +82,7 @@ print(
     AggregationLive(
         AggregationConfig(
             image_rotation=True,
-            movement_speed=3,
+            movement_speed=10,
             radius=20,
 
             seed=1,
@@ -86,18 +91,19 @@ print(
         # .spawn_obstacle("images/triangle@200px.png", 300,300)
         # .spawn_obstacle("images/blue_circle.png", 200, 500)
         #.spawn_obstacle("images/blue_circle.png", 500, 200)
-        .spawn_site("images/light_blue_circle.png", 500, 200)
-        .spawn_site("images/light_blue_circle1.png", 200, 500)
-        #.spawn_site("images/light_blue_circle.png", 500, 200)
+        # .spawn_site("images/light_blue_circle.png", 375, 375)
+        .spawn_site("images/oneforthcircle.png", 187.5, 562.5)
+        .spawn_site("images/oneforthcircle.png", 562.5, 187.5)
+        .spawn_site("images/oneforthcircle.png", 562.5, 562.5)
+        .spawn_site("images/oneforthcircle.png", 187.5, 187.5)
+        # .spawn_site("images/light_blue_circle.png", 500, 200)
         # .spawn_obstacle("images/blue_circle.png", 400, 400)
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
         
         .run()
         .snapshots
-        # .filter(pl.col("id") == 0)\
-        .write_csv("aggregation.csv")
+        # .filter(pl.col("id") == 0)
+        .write_csv("four_circles_trial1.csv")
 
 
 )
-df = pl.read_csv("path.csv")
-print
