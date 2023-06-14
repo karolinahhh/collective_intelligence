@@ -26,22 +26,23 @@ class Cockroach(Agent):
         self.state = state
         self.check_site = check_site
 
-
-    def probability(self, threshold: float) -> bool:
-        """Randomly retrieve True or False depending on the given probability
-        The probability should be between 0 and 1.
-        """
-        return random.random() < threshold
-    
+    # def probability(self, threshold: float) -> bool:
+    #     """Randomly retrieve True or False depending on the given probability
+    #     The probability should be between 0 and 1.
+    #     """
+    #     return random.random() < threshold
 
     def change_position(self):
         # Pac-man-style teleport to the other end of the screen when trying to escape
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
-        p = self.probability(0.01)
+        #p = self.probability(0.01)
         p_leave = 0.1 / (1 + neighbours_count)
         p_join = 1 - p_leave
         randomx = random.random()
+
+        if not self.on_site():
+            self.check_site = False
 
         if self.state == "WANDERING":
             self.pos += self.move * self.config.delta_time  # wandering
@@ -49,10 +50,6 @@ class Cockroach(Agent):
             if self.on_site() and p_join > randomx and not self.check_site:
                 self.state = "JOIN"
                 self.config.counter1 = 0
-            # if self.check_site and not self.on_site():
-            #     self.state = "JOIN"
-            #     self.config.counter1 = 0
-
 
         if self.state == "JOIN":
             self.config.counter1 += 1
@@ -69,11 +66,17 @@ class Cockroach(Agent):
                 self.config.counter = 0
 
         if self.state == "LEAVING":
+
             self.config.counter += 1
-            if self.config.counter > 500:
+            print(self.config.counter)
+            # self.continue_movement()
+            if self.config.counter > 500:#:
                 self.state = "WANDERING"
                 self.config.counter = 0
-
+            # else:
+            #     self.pos += self.move * self.config.delta_time
+                #self.check_site = False
+        #print(not(False))
 
 
 class AggregationLive(Simulation):
@@ -85,7 +88,7 @@ class AggregationLive(Simulation):
         AggregationConfig(
             image_rotation=True,
             movement_speed=3,
-            radius=50,
+            radius=25,
             seed=1,
         )
     )
