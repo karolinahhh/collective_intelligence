@@ -42,11 +42,13 @@ class Cockroach(Agent):
         p_leave = 0.5 / (1 + neighbours_count)
         p_join = 1 - p_leave
         randomx = random.random()
-
+        if not self.on_site():
+            self.check_site = False
         if self.state == "WANDERING":
               # wandering
-            if not self.on_site():
-                self.pos += self.move * self.config.delta_time
+
+
+            self.pos += self.move * self.config.delta_time
             if self.on_site() and p_join > randomx and not self.check_site:
                 self.state = "JOIN"
                 self.config.counter1 = 0
@@ -62,19 +64,16 @@ class Cockroach(Agent):
         if self.state == "STILL":
 
             if p_leave > randomx:
-                self.freeze_movement()
                 self.state = "LEAVING"
                 self.check_site = True
                 self.config.counter = 0
-            else:
-                self.freeze_movement()
 
         if self.state == "LEAVING":
             self.config.counter += 1
             if self.config.counter > 2000:
                 self.config.counter = 0
                 self.state = "WANDERING"
-                self.check_site = False
+
 
 
 
