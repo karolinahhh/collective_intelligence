@@ -2,6 +2,7 @@ import polars as pl
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 df = pl.read_csv("four_circles_trial1.csv")
 
 df=(
@@ -26,9 +27,14 @@ df=(
 
 )
 
-sns.lineplot(data=df, x="frame", y="proportion")  # Plotting a barplot
 
-plt.xlabel("time")
-plt.ylabel("proportion of agents")
-plt.title("Proportion of agents on sites per time")
+# Create the line plot using Seaborn
+sns.lineplot(data=df, x='frame', y='absolute_value')
+
+# Set labels and title
+plt.xlabel('Frame')
+plt.ylabel('Absolute Value')
+plt.title('Absolute Value over Time')
+
+# Show the plot
 plt.show()
