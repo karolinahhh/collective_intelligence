@@ -39,40 +39,46 @@ class Cockroach(Agent):
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
         p = self.probability(0.01)
-        p_leave = 0.1 / (1 + neighbours_count)
+        p_leave = 0.5 / (1 + neighbours_count)
         p_join = 1 - p_leave
         randomx = random.random()
 
         if self.state == "WANDERING":
-            self.pos += self.move * self.config.delta_time  # wandering
-            # self.check_site = False
+              # wandering
+            if not self.on_site():
+                self.pos += self.move * self.config.delta_time
             if self.on_site() and p_join > randomx and not self.check_site:
                 self.state = "JOIN"
                 self.config.counter1 = 0
-            # if self.check_site and not self.on_site():
-            #     self.state = "JOIN"
-            #     self.config.counter1 = 0
-
 
         if self.state == "JOIN":
             self.config.counter1 += 1
-            if self.config.counter1 > 50 and self.on_site():
+            if self.config.counter1 > 100 and self.on_site():
                 self.state = "STILL"
                 self.config.counter1 = 0
             else:
                 self.pos += self.move * self.config.delta_time
 
         if self.state == "STILL":
+
             if p_leave > randomx:
+                self.freeze_movement()
                 self.state = "LEAVING"
                 self.check_site = True
                 self.config.counter = 0
+            else:
+                self.freeze_movement()
 
         if self.state == "LEAVING":
             self.config.counter += 1
-            if self.config.counter > 500:
-                self.state = "WANDERING"
+            if self.config.counter > 2000:
                 self.config.counter = 0
+                self.state = "WANDERING"
+                self.check_site = False
+
+
+
+
 
 
 
@@ -85,7 +91,7 @@ class AggregationLive(Simulation):
         AggregationConfig(
             image_rotation=True,
             movement_speed=3,
-            radius=50,
+            radius=20,
             seed=1,
         )
     )
