@@ -3,6 +3,7 @@ from typing import Optional
 import random
 import time
 import pygame as pg
+import polars as pl
 from pygame.math import Vector2
 from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
@@ -16,8 +17,6 @@ class AggregationConfig(Config):
     time = 50
 
 
-
-
 class Cockroach(Agent):
     config: AggregationConfig
 
@@ -26,29 +25,26 @@ class Cockroach(Agent):
         self.state = state
         self.check_site = check_site
 
-
-    def probability(self, threshold: float) -> bool:
-        """Randomly retrieve True or False depending on the given probability
-        The probability should be between 0 and 1.
-        """
-        return random.random() < threshold
-    
+    def update(self):
+        site = self.on_site()
+        self.save_data("site", site)
+        site_id = self.on_site_id()
+        self.save_data("site_id", site_id)
 
     def change_position(self):
-        # Pac-man-style teleport to the other end of the screen when trying to escape
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
-        p = self.probability(0.01)
-        p_leave = 0.5 / (1 + neighbours_count)
+
+        p_leave = 0.01 / (1 + neighbours_count)
         p_join = 1 - p_leave
         randomx = random.random()
+
         if not self.on_site():
             self.check_site = False
+
         if self.state == "WANDERING":
-              # wandering
+            self.pos += self.move * self.config.delta_time  # wandering
 
-
-            self.pos += self.move * self.config.delta_time
             if self.on_site() and p_join > randomx and not self.check_site:
                 self.state = "JOIN"
                 self.config.counter1 = 0
@@ -62,7 +58,6 @@ class Cockroach(Agent):
                 self.pos += self.move * self.config.delta_time
 
         if self.state == "STILL":
-
             if p_leave > randomx:
                 self.state = "LEAVING"
                 self.check_site = True
@@ -70,10 +65,10 @@ class Cockroach(Agent):
 
         if self.state == "LEAVING":
             self.config.counter += 1
-            if self.config.counter > 2000:
-                self.config.counter = 0
+            # if self.config.counter > 2000:
+            if self.config.counter > 700:
                 self.state = "WANDERING"
-
+                self.config.counter = 0
 
 
 
@@ -84,13 +79,13 @@ class Cockroach(Agent):
 class AggregationLive(Simulation):
     config: AggregationConfig
 
-
-(
+print(
     AggregationLive(
         AggregationConfig(
             image_rotation=True,
             movement_speed=3,
             radius=20,
+
             seed=1,
         )
     )
@@ -98,9 +93,13 @@ class AggregationLive(Simulation):
         # .spawn_obstacle("images/blue_circle.png", 200, 500)
         #.spawn_obstacle("images/blue_circle.png", 500, 200)
         .spawn_site("images/light_blue_circle.png", 500, 200)
+        .spawn_site("images/light_blue_circle1.png", 200, 500)
         #.spawn_site("images/light_blue_circle.png", 500, 200)
         # .spawn_obstacle("images/blue_circle.png", 400, 400)
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
         
         .run()
+        .snapshots
+        # .filter(pl.col("id") == 0)\
+        .write_csv("aggregation.csv")
 )
