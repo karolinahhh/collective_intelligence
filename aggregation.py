@@ -24,7 +24,6 @@ class Cockroach(Agent):
         super().__init__(images=images, simulation=simulation)
         self.state = state
         self.check_site = check_site
-        self.data = []
 
     def update(self):
         site = self.on_site()
