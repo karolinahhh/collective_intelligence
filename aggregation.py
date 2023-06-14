@@ -99,5 +99,4 @@ print(
 
 
 )
-df = pl.read_csv("path.csv")
-print
+
