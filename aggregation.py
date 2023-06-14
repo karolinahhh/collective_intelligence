@@ -70,12 +70,6 @@ class Cockroach(Agent):
                 self.state = "WANDERING"
                 self.config.counter = 0
 
-
-
-
-
-
-
 class AggregationLive(Simulation):
     config: AggregationConfig
 
@@ -102,4 +96,8 @@ print(
         .snapshots
         # .filter(pl.col("id") == 0)\
         .write_csv("aggregation.csv")
+
+
 )
+df = pl.read_csv("path.csv")
+print
