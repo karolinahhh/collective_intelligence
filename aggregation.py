@@ -83,7 +83,7 @@ print(
         AggregationConfig(
             image_rotation=True,
             movement_speed=10,
-            radius=20,
+            radius=100,
 
             seed=1,
         )
@@ -91,7 +91,7 @@ print(
         # .spawn_obstacle("images/triangle@200px.png", 300,300)
         # .spawn_obstacle("images/blue_circle.png", 200, 500)
         #.spawn_obstacle("images/blue_circle.png", 500, 200)
-        # .spawn_site("images/light_blue_circle.png", 375, 375)
+        #.spawn_site("images/light_blue_circle.png", 375, 375)
         .spawn_site("images/oneforthcircle.png", 187.5, 562.5)
         .spawn_site("images/oneforthcircle.png", 562.5, 187.5)
         .spawn_site("images/oneforthcircle.png", 562.5, 562.5)
@@ -103,7 +103,7 @@ print(
         .run()
         .snapshots
         # .filter(pl.col("id") == 0)
-        .write_csv("four_circles_trial1.csv")
+        .write_csv("4_circle_exp_100.csv")
 
 
 )
