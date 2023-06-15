@@ -92,11 +92,11 @@ print(
             seed=1,
         )
     )
-        .spawn_site("images/light_blue_circle.png", 375, 375)
-        # .spawn_site("images/cookie_small.png", 187.5, 562.5)
-        # .spawn_site("images/cookie_small.png", 562.5, 187.5)
-        # .spawn_site("images/cookie_small.png", 562.5, 562.5)
-        # .spawn_site("images/cookie_small.png", 187.5, 187.5))
+        # .spawn_site("images/light_blue_circle.png", 375, 375)
+        .spawn_site("images/small_bottom_left.png", 187.5, 562.5) #cor
+        .spawn_site("images/small_top_right.png", 562.5, 187.5)
+        .spawn_site("images/small_bottom_right.png", 562.5, 562.5) #cor
+        .spawn_site("images/small_top_left.png", 187.5, 187.5) #cor
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
         
         .run()
