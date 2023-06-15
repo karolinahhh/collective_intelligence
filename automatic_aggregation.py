@@ -88,13 +88,9 @@ def run_simulation(radius: int, csv_filename: str):
             image_rotation=True,
             movement_speed=10,
             radius=radius,
-            seed=1,
             duration = 15000
         )
-    ).spawn_site("images/oneforthcircle.png", 187.5, 562.5) \
-    .spawn_site("images/oneforthcircle.png", 562.5, 187.5) \
-    .spawn_site("images/oneforthcircle.png", 562.5, 562.5) \
-    .spawn_site("images/oneforthcircle.png", 187.5, 187.5) \
+    ).spawn_site("images/blue_cookie_big.png", 375, 375) \
     .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"]) \
     .run() \
     .snapshots \
@@ -105,7 +101,7 @@ def generate_csv_filename(radius: int, run_index: int):
     return f"4circle_aggregation_radius_{radius}_run_{run_index}.csv"
 
 # Define the radius values and the number of runs
-radius_values = [10, 20, 40]  # Add more values as needed
+radius_values = [10, 20, 30, 40]  # Add more values as needed
 num_runs = 5  # Change this to the desired number of runs
 
 # Run the simulation multiple times with different radii and save the CSV files

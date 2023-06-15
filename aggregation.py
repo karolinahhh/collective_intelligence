@@ -86,23 +86,23 @@ print(
         AggregationConfig(
             image_rotation=True,
             movement_speed=10,
-            radius=40,
+            radius=30,
+            duration=15000
             # fps_limit = 0,
 
-            seed=1,
+            #seed=1,
         )
     )
-        # .spawn_site("images/light_blue_circle.png", 375, 375)
-        .spawn_site("images/small_bottom_left.png", 187.5, 562.5) #cor
-        .spawn_site("images/small_top_right.png", 562.5, 187.5)
-        .spawn_site("images/small_bottom_right.png", 562.5, 562.5) #cor
-        .spawn_site("images/small_top_left.png", 187.5, 187.5) #cor
+        .spawn_site("images/blue_cookie_small.png", 187.5, 562.5)
+        .spawn_site("images/blue_cookie_small.png", 562.5, 187.5)
+        .spawn_site("images/blue_cookie_small.png", 562.5, 562.5)
+        .spawn_site("images/blue_cookie_small.png", 187.5, 187.5)
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
         
         .run()
         .snapshots
         # .filter(pl.col("id") == 0)
-        .write_csv("4_circle_exp_100.csv")
+        .write_csv("4_circle_exp_30_5.csv")
 
 
 )
