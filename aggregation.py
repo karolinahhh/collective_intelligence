@@ -37,6 +37,9 @@ class Cockroach(Agent):
         self.there_is_no_escape()
         neighbours_count = self.in_proximity_accuracy().count()
 
+        # p_join = 1 / (1 + np.exp(-5*neighbours_count))
+        # # print(p_leave)
+        # p_leave = 1 - p_join
         p_join = 1 / (1 + np.exp(-5*neighbours_count))
         # print(p_leave)
         p_leave = 1 - p_join
@@ -83,21 +86,17 @@ print(
         AggregationConfig(
             image_rotation=True,
             movement_speed=10,
-            radius=100,
+            radius=40,
+            # fps_limit = 0,
 
             seed=1,
         )
     )
-        # .spawn_obstacle("images/triangle@200px.png", 300,300)
-        # .spawn_obstacle("images/blue_circle.png", 200, 500)
-        #.spawn_obstacle("images/blue_circle.png", 500, 200)
-        #.spawn_site("images/light_blue_circle.png", 375, 375)
-        .spawn_site("images/oneforthcircle.png", 187.5, 562.5)
-        .spawn_site("images/oneforthcircle.png", 562.5, 187.5)
-        .spawn_site("images/oneforthcircle.png", 562.5, 562.5)
-        .spawn_site("images/oneforthcircle.png", 187.5, 187.5)
-        # .spawn_site("images/light_blue_circle.png", 500, 200)
-        # .spawn_obstacle("images/blue_circle.png", 400, 400)
+        # .spawn_site("images/light_blue_circle.png", 375, 375)
+        .spawn_site("images/small_bottom_left.png", 187.5, 562.5) #cor
+        .spawn_site("images/small_top_right.png", 562.5, 187.5)
+        .spawn_site("images/small_bottom_right.png", 562.5, 562.5) #cor
+        .spawn_site("images/small_top_left.png", 187.5, 187.5) #cor
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
         
         .run()
