@@ -5,8 +5,9 @@ import time
 import pygame as pg
 import polars as pl
 from pygame.math import Vector2
-from vi import Agent, Simulation
+from vi import Agent, Simulation, Matrix
 from vi.config import Config, dataclass, deserialize
+from multiprocessing import Pool
 
 
 @deserialize
@@ -74,8 +75,13 @@ print(
     AggregationLive(
         AggregationConfig(
             image_rotation=True,
+<<<<<<< Updated upstream
             movement_speed=3,
             radius=25,
+=======
+            movement_speed=10,
+            radius=20,
+>>>>>>> Stashed changes
             seed=1,
         )
     )
@@ -87,9 +93,26 @@ print(
         #.spawn_site("images/light_blue_circle.png", 500, 200)
         # .spawn_obstacle("images/blue_circle.png", 400, 400)
         .batch_spawn_agents(50, Cockroach, images=["images/orange_dot.png"])
-        
+        .batch_spawn_agents(50, Cockroach, images=["images/yellow_circle.png"])
         .run()
         .snapshots
+<<<<<<< Updated upstream
         # .filter(pl.col("id") == 0)\
         .write_csv("aggregation.csv")
+=======
+        .write_csv("four_circles_trial1.csv")
+
+>>>>>>> Stashed changes
 )
+
+if __name__ == "__main__":
+     # We create a threadpool to run our simulations in parallel
+     with Pool() as p:
+         # The matrix will create four unique configs
+         matrix = Matrix(radius=[25, 50], seed=[1, 2])
+
+         # Create unique combinations of matrix values
+         configs = matrix.to_configs(Config)
+         # Combine our individual DataFrames into one big DataFrame
+         df = pl.concat(p.map(run_simulation, configs))
+         print(df)
