@@ -104,7 +104,7 @@ def generate_csv_filename(radius: int, run_index: int):
     return f"4circle_aggregation_radius_{radius}_run_{run_index}.csv"
 
 # Define the radius values and the number of runs
-radius_values = [20, 30, 40]  # Add more values as needed
+radius_values = [20, 40]  # Add more values as needed
 num_runs = 5  # Change this to the desired number of runs
 
 # Run the simulation multiple times with different radii and save the CSV files
