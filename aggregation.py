@@ -86,7 +86,7 @@ print(
         AggregationConfig(
             image_rotation=True,
             movement_speed=10,
-            radius=30,
+            radius=20,
             duration=15000
             # fps_limit = 0,
 
@@ -102,7 +102,7 @@ print(
         .run()
         .snapshots
         # .filter(pl.col("id") == 0)
-        .write_csv("4_circle_exp_30_5.csv")
+        .write_csv("4circle_aggregation_radius_20_run_2.csv")
 
 
 )
