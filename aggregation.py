@@ -102,7 +102,7 @@ print(
         .run()
         .snapshots
         # .filter(pl.col("id") == 0)
-        .write_csv("4circle_aggregation_radius_40_run_2.csv")
+        .write_csv("4circle_aggregation_radius_40_run_4.csv")
 
 
 )
