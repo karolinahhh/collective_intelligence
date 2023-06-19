@@ -34,16 +34,10 @@ class PPConfig(Config):
 class Predator(Agent):
     config: PPConfig
 
-<<<<<<< Updated upstream
     def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", energy=50, agent_type=0):
         super().__init__(images=images, simulation=simulation)
         self.state = state
-        self.energy = energy
         self.agent_type = agent_type
-=======
-    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING"):
-        super().__init__(images=images, simulation=simulation)
-        self.state = state
         self.energy = self.config.energy
         self.eat_threshold = self.config.eat_threshold
         self.prey_worth = self.config.prey_worth
@@ -51,7 +45,6 @@ class Predator(Agent):
         self.reproduction_cost = self.config.reproduction_cost
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
->>>>>>> Stashed changes
 
     def update(self):
         # check if eating rabbit in proximity ?
@@ -63,15 +56,6 @@ class Predator(Agent):
          )
 
         if prey is not None:
-<<<<<<< Updated upstream
-            prey.kill()
-            self.energy += 10
-            if self.energy >= 50:
-                 self.reproduce()
-                 self.energy -= 30
-
-        if self.energy < 25:
-=======
             prob_eat = random.random()
             if prob_eat < self.eat_threshold:
                 prey.kill()
@@ -81,7 +65,6 @@ class Predator(Agent):
                     self.energy -= self.reproduction_cost
 
         if self.energy < self.death_threshold:
->>>>>>> Stashed changes
              self.kill()
 
         self.energy -= self.energy_loss
@@ -109,11 +92,8 @@ class Prey(Agent):
     def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", agent_type=1):
         super().__init__(images=images, simulation=simulation)
         self.state = state
-<<<<<<< Updated upstream
         self.agent_type= agent_type
-=======
         self.reproduction_chance = self.config.reproduction_chance
->>>>>>> Stashed changes
 
     def update(self):
         should_reproduce = random.random()
