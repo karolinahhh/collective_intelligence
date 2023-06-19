@@ -22,9 +22,10 @@ class PPConfig(Config):
 class Predator(Agent):
     config: PPConfig
 
-    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING"):
+    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", energy=50):
         super().__init__(images=images, simulation=simulation)
         self.state = state
+        self.energy = energy
 
     def update(self):
         # check if eating rabbit in proximity ?
@@ -37,9 +38,16 @@ class Predator(Agent):
 
         if prey is not None:
             prey.kill()
-            should_reproduce = random.random()
-            if should_reproduce < 0.2:
-                self.reproduce() # reproduce needs to be implemented better later
+            self.energy += 10
+            if self.energy >= 75:
+                 self.reproduce()
+                 self.energy -= 30
+
+        if self.energy < 25:
+             self.kill()
+
+        self.energy -= 0.05
+        print(self.energy)
 
     def change_position(self):
           self.there_is_no_escape()
@@ -50,7 +58,7 @@ class Predator(Agent):
                 should_change_angle = prng.random()
                 deg = prng.uniform(-30,30)
 
-                if 0.5 > should_change_angle:
+                if 0.2 > should_change_angle:
                     self.move.rotate_ip(deg)
 
                 self.pos += self.move * self.config.delta_time  # wandering
@@ -79,7 +87,7 @@ class Prey(Agent):
                 should_change_angle = prng.random()
                 deg = prng.uniform(-30,30)
 
-                if 0.5 > should_change_angle:
+                if 0.2 > should_change_angle:
                     self.move.rotate_ip(deg)
 
                 self.pos += self.move * self.config.delta_time  # wandering
@@ -93,7 +101,7 @@ class PPLive(Simulation):
         PPConfig(
             image_rotation=True,
             movement_speed=3,
-            radius=10,
+            radius=15,
             seed=1,
         )
     )
