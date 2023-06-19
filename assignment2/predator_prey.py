@@ -37,7 +37,9 @@ class Predator(Agent):
 
         if prey is not None:
             prey.kill()
-            self.reproduce() # reproduce needs to be implemented better later
+            should_reproduce = random.random()
+            if should_reproduce < 0.2:
+                self.reproduce() # reproduce needs to be implemented better later
 
     def change_position(self):
           self.there_is_no_escape()
@@ -46,9 +48,9 @@ class Predator(Agent):
                 
                 prng = self.shared.prng_move
                 should_change_angle = prng.random()
-                deg = prng.uniform(-10,10)
+                deg = prng.uniform(-30,30)
 
-                if 0.25 > should_change_angle:
+                if 0.5 > should_change_angle:
                     self.move.rotate_ip(deg)
 
                 self.pos += self.move * self.config.delta_time  # wandering
@@ -60,6 +62,14 @@ class Prey(Agent):
         super().__init__(images=images, simulation=simulation)
         self.state = state
 
+    def update(self):
+        reproduction_chance = 0.001  # Adjust the reproduction chance as desired
+
+        should_reproduce = random.random()
+        if should_reproduce < reproduction_chance:
+            self.reproduce()  # reproduce needs to be implemented better later
+
+
     def change_position(self):
           self.there_is_no_escape()
 
@@ -67,12 +77,13 @@ class Prey(Agent):
                 
                 prng = self.shared.prng_move
                 should_change_angle = prng.random()
-                deg = prng.uniform(-10,10)
+                deg = prng.uniform(-30,30)
 
-                if 0.25 > should_change_angle:
+                if 0.5 > should_change_angle:
                     self.move.rotate_ip(deg)
 
                 self.pos += self.move * self.config.delta_time  # wandering
+    
 
 class PPLive(Simulation):
       config: PPConfig
