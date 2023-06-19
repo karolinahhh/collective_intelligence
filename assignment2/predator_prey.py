@@ -22,10 +22,11 @@ class PPConfig(Config):
 class Predator(Agent):
     config: PPConfig
 
-    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", energy=50):
+    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", energy=50, agent_type=0):
         super().__init__(images=images, simulation=simulation)
         self.state = state
         self.energy = energy
+        self.agent_type = agent_type
 
     def update(self):
         # check if eating rabbit in proximity ?
@@ -39,7 +40,7 @@ class Predator(Agent):
         if prey is not None:
             prey.kill()
             self.energy += 10
-            if self.energy >= 75:
+            if self.energy >= 50:
                  self.reproduce()
                  self.energy -= 30
 
@@ -48,6 +49,9 @@ class Predator(Agent):
 
         self.energy -= 0.05
         print(self.energy)
+
+        agent_type= self.agent_type
+        self.save_data("agent", agent_type)
 
     def change_position(self):
           self.there_is_no_escape()
@@ -66,9 +70,10 @@ class Predator(Agent):
 
 class Prey(Agent):
     config: PPConfig
-    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING"):
+    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", agent_type=1):
         super().__init__(images=images, simulation=simulation)
         self.state = state
+        self.agent_type= agent_type
 
     def update(self):
         reproduction_chance = 0.001  # Adjust the reproduction chance as desired
@@ -76,6 +81,9 @@ class Prey(Agent):
         should_reproduce = random.random()
         if should_reproduce < reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
+
+        agent_type = self.agent_type
+        self.save_data("agent", agent_type)
 
 
     def change_position(self):
@@ -109,4 +117,6 @@ class PPLive(Simulation):
     .batch_spawn_agents(10, Predator, images=["images/medium-bird.png"])
     .batch_spawn_agents(50, Prey, images = ["images/red.png"])
     .run()
+    .snapshots
+    .write_csv("predprey.csv")
 )
