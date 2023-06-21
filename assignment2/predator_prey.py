@@ -12,31 +12,39 @@ from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 from vi.simulation import HeadlessSimulation
 
+#introduce flocking (flocking/not)
+#stopping after full (full/nofull)
+
 @deserialize
 @dataclass
 class PPConfig(Config):
-    delta_time: float = 1
+    delta_time: float = 3 #1
     mass: int = 20
     energy: int = 60 #50
     eat_threshold: int = 0.3
-    prey_worth: int = 20 #was 10
+    prey_worth: int = 25 #was 10
     reproduction_threshold: int = 90
     reproduction_cost: int = 20
     death_threshold: int = 30 #20
     full_threshold: int = 70
-    energy_loss: float = 0.08
-    reproduction_chance: float = 0.0015 #0.003
-    image_rotation: bool = True
-    movement_speed: int = 3
+    energy_loss: float = 0.05
+    reproduction_chance: float = 0.001 #0.003
+    # image_rotation: bool = True
+    # movement_speed: int = 3
     #radius: int = 10
-    seed: int = 1
-    counter: int = 120 #check counter later
+    # seed: int = 1
+    # counter: int = 120 #check counter later
     prob_reproduce: float = 0.5
+    alignment_weight: float = 5
+    cohesion_weight: float = 0.5
+    separation_weight: float = 0.5
+    def weights(self) -> tuple[float, float, float]:
+        return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
 
 class Predator(Agent):
     config: PPConfig
 
-    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", energy=50, agent_type=0):
+    def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", agent_type=0):
         super().__init__(images=images, simulation=simulation)
         self.state = state
         self.agent_type = agent_type
@@ -47,38 +55,40 @@ class Predator(Agent):
         self.reproduction_cost = self.config.reproduction_cost
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
-        self.counter = self.config.counter
+        # self.counter = self.config.counter
         self.full_threshold = self.config.full_threshold
         self.prob_reproduce = self.config.prob_reproduce
 
     def update(self):
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
-            # if random.random() < self.prob_reproduce:
-            #     self.reproduce()
-            #     self.energy -= self.reproduction_cost
+
 
         else:
             self.state = 'WANDERING'
 
-        # check if eating rabbit in proximity ?
-        prey = (
-            self.in_proximity_accuracy()
-            .without_distance() # removes distance (?)
-            .filter_kind(Prey)
-            .first()
-         )
+            # check if eating rabbit in proximity ?
+            prey = (
+                self.in_proximity_accuracy()
+                .filter(lambda x: x[1] < 15)
+                .without_distance()  # removes distance (?)
+                .filter_kind(Prey)
+                .first()
+            )
 
+            if prey is not None:
+                prob_eat = random.random()
+                if prob_eat < self.eat_threshold:
+                    prey.kill()
+                    self.energy += self.prey_worth
 
-        if prey is not None:
-            prob_eat = random.random()
-            if prob_eat < self.eat_threshold:
-                prey.kill()
-                # self.counter=0
-                self.energy += self.prey_worth
-                if self.energy >= self.reproduction_threshold:
-                    self.reproduce()
-                    self.energy -= self.reproduction_cost
+            if self.energy >= self.reproduction_threshold:
+                self.reproduce()
+                self.energy -= self.reproduction_cost
+
+        # if self.energy >= self.reproduction_threshold:
+        #     self.reproduce()
+        #     self.energy -= self.reproduction_cost
 
         if self.energy < self.death_threshold:
              self.kill()
@@ -87,6 +97,7 @@ class Predator(Agent):
 
         agent_type= self.agent_type
         self.save_data("agent", agent_type)
+
 
     def change_position(self):
           self.there_is_no_escape()
@@ -104,7 +115,6 @@ class Predator(Agent):
           elif self.state == "FULL":
               self.freeze_movement()
 
-
 class Prey(Agent):
     config: PPConfig
     def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", agent_type=1):
@@ -117,24 +127,86 @@ class Prey(Agent):
         should_reproduce = random.random()
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
-
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
 
-
     def change_position(self):
-          self.there_is_no_escape()
+        neighbours_count = self.in_proximity_accuracy().count()
 
-          if self.state == "WANDERING":
-                
-                prng = self.shared.prng_move
-                should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+        if neighbours_count != 0:
+            sum_velocities = Vector2()
+            separation = Vector2()
+            sum_positions = Vector2()
+            collect_agents = list(self.in_proximity_accuracy())
+            for agent, _ in collect_agents:
+                sum_velocities += agent.move.normalize()
+                separation += self.pos - agent.pos
+                sum_positions += agent.pos
+            # alignment
+            sum_velocities = sum_velocities / neighbours_count
+            alignment = sum_velocities - self.move
+            # separation
+            separation = separation / neighbours_count
+            # cohesion
+            avg_pos_neighbouring_birds = sum_positions / neighbours_count
+            cohesion_force = avg_pos_neighbouring_birds - self.pos
+            cohesion = cohesion_force - self.move
 
-                if 0.2 > should_change_angle:
-                    self.move.rotate_ip(deg)
+            f_total = (alignment * PPConfig().weights()[0] + separation * PPConfig().weights()[
+                2] + cohesion * PPConfig().weights()[1]) / self.config.mass
 
-                self.pos += self.move * self.config.delta_time  # wandering
+            self.move += f_total
+            if self.move.length() > self.config.movement_speed:
+                self.move = self.move.normalize() * self.config.movement_speed
+
+        changed = self.there_is_no_escape()
+
+        prng = self.shared.prng_move
+
+        # Always calculate the random angle so a seed could be used.
+        deg = prng.uniform(-30, 30)
+
+        # Only update angle if the agent was teleported to a different area of the simulation.
+        if changed:
+            self.move.rotate_ip(deg)
+
+        # Obstacle Avoidance
+        obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
+        collision = bool(obstacle_hit)
+
+        # Reverse direction when colliding with an obstacle.
+        if collision and not self._still_stuck:
+            self.move.rotate_ip(150)
+            self._still_stuck = True
+
+        if not collision:
+            self._still_stuck = False
+
+        # Random opportunity to slightly change angle.
+        # Probabilities are pre-computed so a seed could be used.
+        should_change_angle = prng.random()
+        deg = prng.uniform(-10, 10)
+
+        # Only allow the angle opportunity to take place when no collisions have occured.
+        # This is done so an agent always turns 180 degrees. Any small change in the number of degrees
+        # allows the agent to possibly escape the obstacle.
+        if not collision and not self._still_stuck and 0.25 > should_change_angle:
+            self.move.rotate_ip(deg)
+
+        self.pos += self.move * self.config.delta_time
+
+    # self.there_is_no_escape()
+          #
+          # if self.state == "WANDERING":
+          #
+          #       prng = self.shared.prng_move
+          #       should_change_angle = prng.random()
+          #       deg = prng.uniform(-30,30)
+          #
+          #       if 0.2 > should_change_angle:
+          #           self.move.rotate_ip(deg)
+          #
+          #       self.pos += self.move * self.config.delta_time  # wandering
     
 class Selection(Enum):
     REP_THR = auto()
@@ -177,13 +249,13 @@ class PPLive(Simulation):
         PPConfig(
             image_rotation=True,
             movement_speed=1,
-            radius=15,
+            radius=50,
             seed=1,
         )
     )
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #5
-    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #25
+    .batch_spawn_agents(20, Predator, images=["images/wolf.png"]) #5
+    .batch_spawn_agents(45, Prey, images = ["images/sheep.png"]) #25
     .run()
     .snapshots
     .write_csv("predprey.csv")

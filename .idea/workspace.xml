@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76333c37-2639-4583-8268-39cf0a135fc1" name="Default Changelist" comment="4circle aggregation radius 10 done">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/dog.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep_emoji (1).png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep_shaun (2).webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/wolf.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assignment2/images/wolf_final (1).png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assignment2/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assignment2/predator_prey.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predator_prey.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assignment2/predprey.csv" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predprey.csv" afterDir="false" />
     </list>
@@ -19,27 +25,21 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="2RVUSlAReyt9w89sq4fG7qeYigj" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/Karolynn/Desktop/ProjectCI/collective_intelligence"
-  }
-}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assignment2/images" />
       <recent name="$PROJECT_DIR$/graphs_of_runs" />
       <recent name="$PROJECT_DIR$/4circles" />
       <recent name="$PROJECT_DIR$/1circle" />
       <recent name="$PROJECT_DIR$/images" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.data">
     <configuration name="aggregation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="collective_intelligence" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -103,19 +103,19 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="data_analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="collective_intelligence" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.11/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assignment2" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_analysis.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/assignment2/data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -124,19 +124,19 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="try_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="predator_prey" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="collective_intelligence" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.11/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/assignment2" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/assignment2/predator_prey.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -147,11 +147,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.data" />
+        <item itemvalue="Python.predator_prey" />
         <item itemvalue="Python.aggregation" />
         <item itemvalue="Python.automatic_aggregation" />
         <item itemvalue="Python.analysis_box_plot" />
-        <item itemvalue="Python.data_analysis" />
-        <item itemvalue="Python.try_data" />
       </list>
     </recent_temporary>
   </component>
@@ -204,6 +204,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added yellow circle" />
