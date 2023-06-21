@@ -254,8 +254,8 @@ class PPLive(Simulation):
         )
     )
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #5
-    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #25
+    .batch_spawn_agents(20, Predator, images=["images/wolf.png"]) #5
+    .batch_spawn_agents(45, Prey, images = ["images/sheep.png"]) #25
     .run()
     .snapshots
     .write_csv("predprey.csv")
