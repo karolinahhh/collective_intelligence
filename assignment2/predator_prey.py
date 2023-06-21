@@ -15,21 +15,23 @@ from vi.simulation import HeadlessSimulation
 @deserialize
 @dataclass
 class PPConfig(Config):
-    delta_time: float = 0.9
+    delta_time: float = 1
     mass: int = 20
-    energy: int = 50
-    eat_threshold: int = 50
-    prey_worth: int = 10
+    energy: int = 60 #50
+    eat_threshold: int = 0.3
+    prey_worth: int = 20 #was 10
     reproduction_threshold: int = 90
-    reproduction_cost: int = 50
-    death_threshold: int = 20
-    energy_loss: float = 0.05
-    reproduction_chance: float = 0.003
+    reproduction_cost: int = 20
+    death_threshold: int = 30 #20
+    full_threshold: int = 70
+    energy_loss: float = 0.08
+    reproduction_chance: float = 0.0015 #0.003
     image_rotation: bool = True
     movement_speed: int = 3
-    radius: int = 15
+    #radius: int = 10
     seed: int = 1
-
+    counter: int = 120 #check counter later
+    prob_reproduce: float = 0.5
 
 class Predator(Agent):
     config: PPConfig
@@ -45,8 +47,20 @@ class Predator(Agent):
         self.reproduction_cost = self.config.reproduction_cost
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
+        self.counter = self.config.counter
+        self.full_threshold = self.config.full_threshold
+        self.prob_reproduce = self.config.prob_reproduce
 
     def update(self):
+        if self.energy >= self.full_threshold:
+            self.state = 'FULL'
+            # if random.random() < self.prob_reproduce:
+            #     self.reproduce()
+            #     self.energy -= self.reproduction_cost
+
+        else:
+            self.state = 'WANDERING'
+
         # check if eating rabbit in proximity ?
         prey = (
             self.in_proximity_accuracy()
@@ -55,10 +69,12 @@ class Predator(Agent):
             .first()
          )
 
+
         if prey is not None:
             prob_eat = random.random()
             if prob_eat < self.eat_threshold:
                 prey.kill()
+                # self.counter=0
                 self.energy += self.prey_worth
                 if self.energy >= self.reproduction_threshold:
                     self.reproduce()
@@ -85,6 +101,8 @@ class Predator(Agent):
                     self.move.rotate_ip(deg)
 
                 self.pos += self.move * self.config.delta_time  # wandering
+          elif self.state == "FULL":
+              self.freeze_movement()
 
 
 class Prey(Agent):
@@ -118,22 +136,54 @@ class Prey(Agent):
 
                 self.pos += self.move * self.config.delta_time  # wandering
     
+class Selection(Enum):
+    REP_THR = auto()
+    REP_COST = auto()
+    DEATH_THR = auto()
 
 class PPLive(Simulation):
-      config: PPConfig
+    selection: Selection = Selection.REP_THR
+    config: PPConfig
+
+
+    def handle_event(self, by: float):
+        if self.selection == Selection.REP_THR:
+            self.config.reproduction_threshold += by
+        elif self.selection == Selection.REP_COST:
+            self.config.reproduction_cost += by
+        elif self.selection == Selection.DEATH_THR:
+            self.config.death_threshold += by
+
+    def before_update(self):
+        super().before_update()
+
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    self.handle_event(by=1)
+                elif event.key == pg.K_DOWN:
+                    self.handle_event(by=-1)
+                elif event.key == pg.K_1:
+                    self.selection = Selection.REP_THR
+                elif event.key == pg.K_2:
+                    self.selection = Selection.REP_COST
+                elif event.key == pg.K_3:
+                    self.selection = Selection.DEATH_THR
+
+        print(f"rep.thr.: {self.config.reproduction_threshold:.1f} - rep.cost: {self.config.reproduction_cost:.1f} - death thr: {self.config.death_threshold:.1f}")
 
 (
     PPLive(
         PPConfig(
             image_rotation=True,
-            movement_speed=3,
+            movement_speed=1,
             radius=15,
             seed=1,
         )
     )
 
-    .batch_spawn_agents(5, Predator, images=["images/medium-bird.png"])
-    .batch_spawn_agents(25, Prey, images = ["images/red.png"])
+    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #5
+    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #25
     .run()
     .snapshots
     .write_csv("predprey.csv")
