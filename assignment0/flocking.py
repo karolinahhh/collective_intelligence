@@ -10,8 +10,8 @@ from vi.config import Config, dataclass, deserialize
 @dataclass
 class FlockingConfig(Config):
     alignment_weight: float = 5
-    cohesion_weight: float = 0.7
-    separation_weight: float = 0.3
+    cohesion_weight: float = 0.5
+    separation_weight: float = 0.5
 
     delta_time: float = 3
 
@@ -151,9 +151,9 @@ class FlockingLive(Simulation):
         )
     )
     #.spawn_obstacle("images/triangle@200px.png", 300,300)
-    .spawn_obstacle("images/roofbig1.png", 400,400)
-    .spawn_obstacle("images/car.png", 106, 500)
-    .spawn_obstacle("images/roofsmall2.png", 400,120)
-    .batch_spawn_agents(50, Bird, images=["images/white_bird.png"])
+    # .spawn_obstacle("images/roofbig1.png", 400,400)
+    # .spawn_obstacle("images/car.png", 106, 500)
+    # .spawn_obstacle("images/roofsmall2.png", 400,120)
+    .batch_spawn_agents(50, Bird, images=["images/red.png"])
     .run()
 )
