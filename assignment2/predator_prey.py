@@ -12,6 +12,9 @@ from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 from vi.simulation import HeadlessSimulation
 
+#introduce flocking (flocking/not)
+#stopping after full (full/nofull)
+
 @deserialize
 @dataclass
 class PPConfig(Config):
@@ -19,19 +22,24 @@ class PPConfig(Config):
     mass: int = 20
     energy: int = 60 #50
     eat_threshold: int = 0.3
-    prey_worth: int = 20 #was 10
+    prey_worth: int = 25 #was 10
     reproduction_threshold: int = 90
     reproduction_cost: int = 20
     death_threshold: int = 30 #20
     full_threshold: int = 70
     energy_loss: float = 0.08
-    reproduction_chance: float = 0.0015 #0.003
-    image_rotation: bool = True
-    movement_speed: int = 3
+    reproduction_chance: float = 0.0018#0.003
+    # image_rotation: bool = True
+    # movement_speed: int = 3
     #radius: int = 10
-    seed: int = 1
-    counter: int = 120 #check counter later
+    # seed: int = 1
+    # counter: int = 120 #check counter later
     prob_reproduce: float = 0.5
+    alignment_weight: float = 10
+    cohesion_weight: float = 25
+    separation_weight: float = 25
+    def weights(self) -> tuple[float, float, float]:
+        return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
 
 class Predator(Agent):
     config: PPConfig
@@ -47,7 +55,7 @@ class Predator(Agent):
         self.reproduction_cost = self.config.reproduction_cost
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
-        self.counter = self.config.counter
+        # self.counter = self.config.counter
         self.full_threshold = self.config.full_threshold
         self.prob_reproduce = self.config.prob_reproduce
 
@@ -104,7 +112,6 @@ class Predator(Agent):
           elif self.state == "FULL":
               self.freeze_movement()
 
-
 class Prey(Agent):
     config: PPConfig
     def __init__(self, images: list[pg.Surface], simulation: Simulation, state="WANDERING", agent_type=1):
@@ -117,24 +124,54 @@ class Prey(Agent):
         should_reproduce = random.random()
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
-
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
 
-
     def change_position(self):
-          self.there_is_no_escape()
+        self.there_is_no_escape()
+        neighbours_count = self.in_proximity_accuracy().count()
+        p_join = 1 / (1 + np.exp(-5 * neighbours_count))
 
-          if self.state == "WANDERING":
-                
-                prng = self.shared.prng_move
-                should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+        # if neighbours_count != 0:
+        if neighbours_count != 0 and random.random() < p_join:
+            sum_velocities = Vector2()
+            separation = Vector2()
+            sum_positions = Vector2()
+            collect_agents = list(self.in_proximity_accuracy())
+            for agent, _ in collect_agents:
+                sum_velocities += agent.move.normalize()
+                separation += self.pos - agent.pos
+                sum_positions += agent.pos
+            # alignment
+            sum_velocities = sum_velocities / neighbours_count
+            alignment = sum_velocities - self.move
+            # separation
+            separation = separation / neighbours_count
+            # cohesion
+            avg_pos_neighbouring_birds = sum_positions / neighbours_count
+            cohesion_force = avg_pos_neighbouring_birds - self.pos
+            cohesion = cohesion_force - self.move
 
-                if 0.2 > should_change_angle:
-                    self.move.rotate_ip(deg)
+            f_total = (alignment * PPConfig().weights()[0] + separation * PPConfig().weights()[
+                2] + cohesion * PPConfig().weights()[1]) / self.config.mass
 
-                self.pos += self.move * self.config.delta_time  # wandering
+            self.move += f_total
+            if self.move.length() > self.config.movement_speed:
+                self.move = self.move.normalize() * self.config.movement_speed
+
+        self.pos += self.move * self.config.delta_time
+          # self.there_is_no_escape()
+          #
+          # if self.state == "WANDERING":
+          #
+          #       prng = self.shared.prng_move
+          #       should_change_angle = prng.random()
+          #       deg = prng.uniform(-30,30)
+          #
+          #       if 0.2 > should_change_angle:
+          #           self.move.rotate_ip(deg)
+          #
+          #       self.pos += self.move * self.config.delta_time  # wandering
     
 class Selection(Enum):
     REP_THR = auto()
