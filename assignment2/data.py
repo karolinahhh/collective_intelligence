@@ -24,6 +24,8 @@ df=(
     # .limit(15000)
     )
 
+df.to_csv("ampli.csv")
+
 # Plotting
 plt.plot(df['simulated_seconds'], df['pred_count'], label='Predator Count')
 plt.plot(df['simulated_seconds'], df['prey_count'], label='Prey Count')

@@ -11,6 +11,7 @@ from pygame.surface import Surface
 from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 from vi.simulation import HeadlessSimulation
+import pandas as pd
 
 #introduce flocking (flocking/not)
 #stopping after full (full/nofull)
@@ -30,6 +31,10 @@ class PPConfig(Config):
     energy_loss: float = 0.05
     reproduction_chance: float = 0.002 #0.002
     prob_reproduce: float = 0.5
+    image_rotation: bool =True,
+    movement_speed: int =1,
+    radius: int =150
+
     # fear_factor: float = 0.0005 #10 predators to never reproduce
 
 
@@ -50,6 +55,7 @@ class Predator(Agent):
         self.full_threshold = self.config.full_threshold
 
     def update(self):
+        print(self.energy)
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
 
@@ -136,56 +142,89 @@ class Prey(Agent):
 
             self.pos += self.move * self.config.delta_time  # wandering
     
-class Selection(Enum):
-    REP_THR = auto()
-    REP_COST = auto()
-    DEATH_THR = auto()
-
 class PPLive(Simulation):
-    selection: Selection = Selection.REP_THR
     config: PPConfig
 
-
-    def handle_event(self, by: float):
-        if self.selection == Selection.REP_THR:
-            self.config.reproduction_threshold += by
-        elif self.selection == Selection.REP_COST:
-            self.config.reproduction_cost += by
-        elif self.selection == Selection.DEATH_THR:
-            self.config.death_threshold += by
-
-    def before_update(self):
-        super().before_update()
-
-        for event in pg.event.get():
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.handle_event(by=1)
-                elif event.key == pg.K_DOWN:
-                    self.handle_event(by=-1)
-                elif event.key == pg.K_1:
-                    self.selection = Selection.REP_THR
-                elif event.key == pg.K_2:
-                    self.selection = Selection.REP_COST
-                elif event.key == pg.K_3:
-                    self.selection = Selection.DEATH_THR
-
-        print(f"rep.thr.: {self.config.reproduction_threshold:.1f} - rep.cost: {self.config.reproduction_cost:.1f} - death thr: {self.config.death_threshold:.1f}")
-
-(
-    PPLive(
-        PPConfig(
-            image_rotation=True,
-            movement_speed=1,
-            radius=150,
-            seed=1,
+    def after_update(self):
+        super().after_update()
+    
+        agents = (
+            self._metrics.snapshots
+                .filter(pl.col("frame") == self.shared.counter)
+                .get_column("agent")
         )
+
+        preds = agents.eq(0).sum()
+        prey = agents.eq(1).sum()
+
+        # print("preds", preds)
+        # print("prey", prey)
+        
+        if preds == 0 or prey == 0:
+            self.stop()
+    
+def run_simulation(csv_filename):
+    config = PPConfig(
+        delta_time = 2, #1
+        mass = 20,
+        energy = 40, #50
+        eat_threshold = 0.5,
+        prey_worth= 15, #was 10
+        reproduction_threshold = 50,
+        reproduction_cost = 30,
+        death_threshold = 20, #20
+        full_threshold = 70,
+        energy_loss= 0.05,
+        reproduction_chance = 0.0015, #0.002
+        prob_reproduce = 0.5,
+        image_rotation=True,
+        movement_speed=1,
+        radius=150,
     )
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #20
-    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #45
-    .run()
-    .snapshots
-    .write_csv("predprey.csv")
-)
+    start_time = time.time()
+    simulation = (
+        PPLive(config)
+        .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"])
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
+        .run()
+        .snapshots
+        .write_csv(csv_filename)
+    )
 
+    end_time = time.time()
+
+    duration = end_time - start_time
+    return duration
+
+def generate_csv_filename(parameters: dict, run_index: int):
+    excluded_params = ['delta_time', 'mass', 'image_rotation', 'movement_speed', 'radius', 'seed']
+    filtered_params = {key: value for key, value in parameters.items() if key not in excluded_params}
+    parameter_str = "_".join([f"{key}_{value}" for key, value in filtered_params.items()])
+    return f"simulation_{parameter_str}_run_{run_index}.csv"
+
+# Run the simulation multiple times with different parameter combinations
+total_duration = 0
+num_runs = 25  # Change this to the desired number of runs
+simulation_durations = []
+
+for run in range(num_runs):
+    csv_filename = f"freeze_run_{run}.csv"  # Customize the filename as needed
+    duration = run_simulation(csv_filename)
+    simulation_durations.append(duration)
+    total_duration += duration
+    print(f"Simulation Run {run + 1}:")
+    print(f"CSV file saved as {csv_filename}.")
+    print(f"Duration: {duration} seconds.")
+    print()
+
+average_duration = total_duration / num_runs
+print(f"Average Duration: {average_duration} seconds.")
+
+# Convert the simulation durations list to a pandas DataFrame for easier analysis
+df = pd.DataFrame({'Simulation Duration': simulation_durations})
+df.index.name = 'Run Index'
+df.sort_values(by='Simulation Duration', ascending=False, inplace=True)
+
+# Print the sorted DataFrame
+print(df)
