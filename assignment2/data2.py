@@ -23,48 +23,33 @@ df=(
     .collect()
     # .limit(15000)
     )
-df = df.with_column("group_id", df['frame'] // 50)
+pandas_df = df.to_pandas()
+pandas_df['groupid'] = None
 
-# Group the DataFrame by the group_id
-grouped_df = df.groupby("group_id").agg(
-    {
-        "frame": pl.first("frame"),  # You can choose any column for aggregation
-        "pred_count": pl.sum("pred_count"),
-        "prey_count": pl.sum("prey_count"),
-        "total count": pl.sum("total count"),
-        "preyconsumed": pl.sum("preyconsumed"),
-        "prey_density": pl.mean("prey_density")
-    }
-)
+for i in range(len(pandas_df["frame"])):
+    temp= pandas_df["frame"][i]//20
+    pandas_df["groupid"][i] = temp
+
+# print(pandas_df)
+polars_df = pl.from_pandas(pandas_df)
+grouped_df=(
+    polars_df.lazy()
+    .groupby("groupid")
+    .agg(
+        [
+            pl.col("preyconsumed").sum().alias("preyconsumed1"),
+            pl.col("prey_count").mean().alias("prey_density1")
+        ]
+    )
+    .collect()
+    )
 print(grouped_df)
 
-# grouped_df = df.groupby(df['frame'] // 50).agg(
-#     {
-#         'preyconsumed': pl.sum(pl.col('preyconsumed')),
-#         'prey_density': pl.mean(pl.col('prey_density'))
-#     }
-# )
-# grouped_df = grouped_df.with_column('avg_prey_density', grouped_df['prey_density'].mean())
-# print(grouped_df)
-plt.plot(df['prey_density'], df['preyconsumed'])
+
+plt.scatter(grouped_df['prey_density1'], grouped_df['preyconsumed1'])
 plt.xlabel('Prey Density')
 plt.ylabel('Number of Prey Consumed')
 plt.title('Relationship between Prey Density and Prey Consumption')
 plt.show()
-# plt.scatter(df['prey_density'], df['preyconsumed'],kind='line')
-# plt.xlabel('Prey Density')
-# plt.ylabel('Number of Prey Consumed')
-# plt.title('Relationship between Prey Density and Prey Consumption')
-# plt.show()
-#
-# # Plotting
-# plt.plot(df['frame'], df['pred_count'], label='Predator Count')
-# plt.plot(df['frame'], df['prey_count'], label='Prey Count')
-# plt.xlabel('Frame')
-# plt.ylabel('Count')
-# plt.title('Predator and Prey Count Over Time')
-# plt.legend()
-#
-# # Display the plot
-# plt.show()
+
 
