@@ -69,6 +69,7 @@ class Bird(Agent):
             self.move.rotate_ip(deg)
 
         # Obstacle Avoidance
+        predators = Predator()
         obstacle_hit = pg.sprite.spritecollideany(self, self._obstacles, pg.sprite.collide_mask)  # type: ignore
         collision = bool(obstacle_hit)
 
