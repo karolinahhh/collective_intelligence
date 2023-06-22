@@ -18,32 +18,20 @@ from vi.simulation import HeadlessSimulation
 @deserialize
 @dataclass
 class PPConfig(Config):
-    delta_time: float = 2 #####
-    mass: int = 20#####
-    energy: int = 40 #50
+    delta_time: float = 2 #1
+    mass: int = 20
+    energy: int = 30 #50
     eat_threshold: int = 0.5
-    prey_worth: int = 15 #was 10
+    prey_worth: int = 10 #was 10
     reproduction_threshold: int = 50
-    reproduction_cost: int = 30
-    death_threshold: int = 20 #20
+    reproduction_cost: int = 10
+    death_threshold: int = 25 #20
+    full_threshold: int = 50
     energy_loss: float = 0.05
-    reproduction_chance: float = 0.009 #0.002
+    reproduction_chance: float = 0.002 #0.002
     prob_reproduce: float = 0.5
-    fear_factor: float = 0.0001 #10 predators to never reproduce
-    prey_count: int= 0
+    fear_factor: float = 0.0005 #10 predators to never reproduce
 
-    # delta_time: float = 2  # 1
-    # mass: int = 20
-    # energy: int = 40  # 50
-    # eat_threshold: int = 0.5
-    # prey_worth: int = 10  # was 10
-    # reproduction_threshold: int = 60
-    # reproduction_cost: int = 30
-    # death_threshold: int = 25  # 20
-    # energy_loss: float = 0.05
-    # reproduction_chance: float = 0.002  # 0.002
-    # prob_reproduce: float = 0.5
-    # fear_factor: float = 0.0005  # 10 predators to never reproduce
 
 class Predator(Agent):
     config: PPConfig
@@ -59,58 +47,58 @@ class Predator(Agent):
         self.reproduction_cost = self.config.reproduction_cost
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
-        self.prey_count = self.config.prey_count
+        self.full_threshold = self.config.full_threshold
 
     def update(self):
-        # check if eating rabbit in proximity ?
-        prey = (
-            self.in_proximity_accuracy()
-            .filter(lambda x: x[1] < 15)
-            .without_distance()  # removes distance (?)
-            .filter_kind(Prey)
-            .first()
-        )
-        if prey is not None:
-            prob_eat = random.random()
-            if prob_eat < self.eat_threshold:
-                prey.kill()
-                self.save_data("prey consumed", 1)
-                # self.prey_count = 1
-                self.energy += self.prey_worth
-            else:
-                self.save_data("prey consumed", 0)
+        if self.energy >= self.full_threshold:
+            self.state = 'FULL'
+
+
         else:
-            self.save_data("prey consumed", 0)
+            self.state = 'WANDERING'
 
-        if self.energy >= self.reproduction_threshold:
-            self.reproduce()
-            self.energy -= self.reproduction_cost
+            # check if eating rabbit in proximity ?
+            prey = (
+                self.in_proximity_accuracy()
+                .filter(lambda x: x[1] < 15)
+                .without_distance()  # removes distance (?)
+                .filter_kind(Prey)
+                .first()
+            )
 
+            if prey is not None:
+                prob_eat = random.random()
+                if prob_eat < self.eat_threshold:
+                    prey.kill()
+                    self.energy += self.prey_worth
+
+            if self.energy >= self.reproduction_threshold:
+                self.reproduce()
+                self.energy -= self.reproduction_cost
 
         if self.energy < self.death_threshold:
-             self.kill()
+            self.kill()
 
         self.energy -= self.energy_loss
 
-        agent_type= self.agent_type
-        # prey_c = self.config.prey_count
+        agent_type = self.agent_type
         self.save_data("agent", agent_type)
-        # self.save_data("prey consumed", prey_c)
-        # self.config.prey_count = 0
 
     def change_position(self):
-          self.there_is_no_escape()
+        self.there_is_no_escape()
 
-          if self.state == "WANDERING":
-                
-                prng = self.shared.prng_move
-                should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+        if self.state == "WANDERING":
 
-                if 0.2 > should_change_angle:
-                    self.move.rotate_ip(deg)
+            prng = self.shared.prng_move
+            should_change_angle = prng.random()
+            deg = prng.uniform(-30, 30)
 
-                self.pos += self.move * self.config.delta_time
+            if 0.2 > should_change_angle:
+                self.move.rotate_ip(deg)
+
+            self.pos += self.move * self.config.delta_time  # wandering
+        elif self.state == "FULL":
+            self.freeze_movement()
 
 class Prey(Agent):
     config: PPConfig
@@ -131,11 +119,8 @@ class Prey(Agent):
 
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
-
         agent_type = self.agent_type
-        # prey_c = self.config.prey_count
         self.save_data("agent", agent_type)
-        self.save_data("prey consumed", 0)
 
     def change_position(self):
         self.there_is_no_escape()
@@ -148,6 +133,7 @@ class Prey(Agent):
 
             if 0.2 > should_change_angle:
                 self.move.rotate_ip(deg)
+
             self.pos += self.move * self.config.delta_time  # wandering
     
 class Selection(Enum):
@@ -158,6 +144,7 @@ class Selection(Enum):
 class PPLive(Simulation):
     selection: Selection = Selection.REP_THR
     config: PPConfig
+
 
     def handle_event(self, by: float):
         if self.selection == Selection.REP_THR:
@@ -195,8 +182,8 @@ class PPLive(Simulation):
         )
     )
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #5
-    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #25
+    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #20
+    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #45
     .run()
     .snapshots
     .write_csv("predprey.csv")
