@@ -18,7 +18,7 @@ from vi.simulation import HeadlessSimulation
 class PPConfig(Config):
     delta_time: float = 2
     mass: int = 20
-    reproduction_threshold: int = 50
+    reproduction_threshold: int = 0.3
     reproduction_chance: float = 0.0015
     counter: int = 500
 
@@ -45,9 +45,12 @@ class Predator(Agent):
         if prey is not None:
             prey.kill()
             self.counter += 220
-            if self.counter >= self.reproduction_threshold:
-                self.reproduce()  # reproduce needs to be implemented better later
-                self.counter -= 20
+            should_reproduce = random.random()
+            if self.counter > 100:
+                self.freeze_movement
+                if should_reproduce < self.reproduction_threshold:
+                    self.reproduce()  # reproduce needs to be implemented better later
+                    self.counter -= 50
 
         if self.counter == 10:
             self.kill()
@@ -109,20 +112,31 @@ class Prey(Agent):
 class PPLive(Simulation):
     config: PPConfig
 
-
-(
-    PPLive(
+# Define a function to run the simulation with the given radius and save the CSV file with the provided name
+def run_simulation(csv_filename: str):
+    simulation = PPLive(
         PPConfig(
             image_rotation=True,
             movement_speed=1,
-            radius=10,
-            # seed=1,
+            radius=10
         )
-    )
+    ).batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) \
+    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) \
+    .run()\
+    .snapshots\
+    .write_csv(csv_filename)
 
-        .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"])
-        .batch_spawn_agents(45, Prey, images=["images/red.png"])
-        .run()
-        .snapshots
-        .write_csv("predprey_no_energy_3.csv")
-)
+
+# Define a function to generate a unique CSV filename based on the radius
+def generate_csv_filename(run_index: int):
+    return f"energy_free_run_{run_index}.csv"
+
+# Define the radius values and the number of runs
+num_runs = 30  # Change this to the desired number of runs
+
+# Run the simulation multiple times with different radii and save the CSV files
+
+for run in range(num_runs):
+    csv_filename = generate_csv_filename(run)
+    run_simulation(csv_filename)
+    print(f"CSV file saved as {csv_filename}.")
