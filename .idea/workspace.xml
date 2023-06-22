@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76333c37-2639-4583-8268-39cf0a135fc1" name="Default Changelist" comment="changed icons">
-      <change afterPath="$PROJECT_DIR$/assignment2/predator_prey_flocking_nofear_duplicate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assignment2/data_simulated_sec.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/data_simulated_sec.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assignment2/predator_prey_flocking_nofear.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predator_prey_flocking_nofear.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assignment2/predator_prey_flocking_nofear.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assignment2/predator_prey_flocking_withfear.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predator_prey_flocking_withfear.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assignment2/predprey.csv" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predprey.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -212,10 +212,7 @@ class Prey(Agent):
         if predator is not None:
             agent, _ = predator  # unpack the tuple
             distance = self.pos - agent.pos
-            if Vector2.length(distance) < Vector2.length(self.pos):
-                alt_position = self.pos + distance
-            else:
-                alt_position = self.pos - distance
+            alt_position = self.pos + distance
             alt_direction = self.pos.angle_to(alt_position)
 
             vpred = alt_position - self.pos
