@@ -17,10 +17,10 @@ from vi.simulation import HeadlessSimulation
 class PPConfig(Config):
     delta_time: float = 0.9
     mass: int = 20
-    reproduction_threshold: int = 0.2
+    reproduction_threshold: int = 0.3
     reproduction_chance: float = 0.0015
     counter: int = 500
-    counter1: int = 400
+
 
 
 class Predator(Agent):
@@ -50,7 +50,7 @@ class Predator(Agent):
                 self.freeze_movement()
                 if should_reproduce < self.reproduction_threshold:
                     self.reproduce() # reproduce needs to be implemented better later
-                    self.counter -= 100
+                    self.counter -= 50
 
         if self.counter == 10:
             self.kill()
@@ -83,7 +83,6 @@ class Prey(Agent):
         self.state = state
         self.agent_type = agent_type
         self.reproduction_chance = self.config.reproduction_chance
-        self.counter1 = self.config.counter1
 
     def update(self):
 
@@ -91,10 +90,6 @@ class Prey(Agent):
         should_reproduce = random.random()
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
-            self.counter1 -= 80
-
-        if self.counter1 == 0:
-            self.kill()
 
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
