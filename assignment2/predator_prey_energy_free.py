@@ -12,15 +12,15 @@ from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 from vi.simulation import HeadlessSimulation
 
+
 @deserialize
 @dataclass
 class PPConfig(Config):
-    delta_time: float = 0.9
+    delta_time: float = 2
     mass: int = 20
-    reproduction_threshold: int = 0.3
+    reproduction_threshold: int = 50
     reproduction_chance: float = 0.0015
     counter: int = 500
-
 
 
 class Predator(Agent):
@@ -37,20 +37,17 @@ class Predator(Agent):
         # check if eating rabbit in proximity ?
         prey = (
             self.in_proximity_accuracy()
-            .without_distance() # removes distance (?)
-            .filter_kind(Prey)
-            .first()
-         )
+                .without_distance()  # removes distance (?)
+                .filter_kind(Prey)
+                .first()
+        )
 
         if prey is not None:
             prey.kill()
             self.counter += 220
-            should_reproduce = random.random()
-            if self.counter > 100:
-                self.freeze_movement()
-                if should_reproduce < self.reproduction_threshold:
-                    self.reproduce() # reproduce needs to be implemented better later
-                    self.counter -= 50
+            if self.counter >= self.reproduction_threshold:
+                self.reproduce()  # reproduce needs to be implemented better later
+                self.counter -= 20
 
         if self.counter == 10:
             self.kill()
@@ -61,18 +58,18 @@ class Predator(Agent):
         self.save_data("agent", agent_type)
 
     def change_position(self):
-          self.there_is_no_escape()
+        self.there_is_no_escape()
 
-          if self.state == "WANDERING":
-                
-                prng = self.shared.prng_move
-                should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+        if self.state == "WANDERING":
 
-                if 0.5 > should_change_angle:
-                    self.move.rotate_ip(deg)
+            prng = self.shared.prng_move
+            should_change_angle = prng.random()
+            deg = prng.uniform(-30, 30)
 
-                self.pos += self.move * self.config.delta_time  # wandering
+            if 0.5 > should_change_angle:
+                self.move.rotate_ip(deg)
+
+            self.pos += self.move * self.config.delta_time  # wandering
 
 
 class Prey(Agent):
@@ -86,7 +83,7 @@ class Prey(Agent):
 
     def update(self):
 
-     # Adjust the reproduction chance as desired
+        # Adjust the reproduction chance as desired
         should_reproduce = random.random()
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
@@ -95,22 +92,23 @@ class Prey(Agent):
         self.save_data("agent", agent_type)
 
     def change_position(self):
-          self.there_is_no_escape()
+        self.there_is_no_escape()
 
-          if self.state == "WANDERING":
-                
-                prng = self.shared.prng_move
-                should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+        if self.state == "WANDERING":
 
-                if 0.5 > should_change_angle:
-                    self.move.rotate_ip(deg)
+            prng = self.shared.prng_move
+            should_change_angle = prng.random()
+            deg = prng.uniform(-30, 30)
 
-                self.pos += self.move * self.config.delta_time  # wandering
-    
+            if 0.5 > should_change_angle:
+                self.move.rotate_ip(deg)
+
+            self.pos += self.move * self.config.delta_time  # wandering
+
 
 class PPLive(Simulation):
-      config: PPConfig
+    config: PPConfig
+
 
 (
     PPLive(
@@ -122,9 +120,9 @@ class PPLive(Simulation):
         )
     )
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"])
-    .batch_spawn_agents(45, Prey, images=["images/red.png"])
-    .run()
-    .snapshots
-    .write_csv("predprey_no_energy.csv")
+        .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"])
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
+        .run()
+        .snapshots
+        .write_csv("predprey_no_energy_3.csv")
 )

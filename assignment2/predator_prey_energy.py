@@ -27,7 +27,7 @@ class PPConfig(Config):
     reproduction_cost: int = 30
     death_threshold: int = 20 #20
     energy_loss: float = 0.05
-    reproduction_chance: float = 0.002 #0.002
+    reproduction_chance: float = 0.0015 #0.002
     prob_reproduce: float = 0.5
     prey_count: int= 0
 
@@ -104,7 +104,7 @@ class Predator(Agent):
                 
                 prng = self.shared.prng_move
                 should_change_angle = prng.random()
-                deg = prng.uniform(-30,30)
+                deg = prng.uniform(-30, 30)
 
                 if 0.2 > should_change_angle:
                     self.move.rotate_ip(deg)
@@ -142,7 +142,7 @@ class Prey(Agent):
 
             prng = self.shared.prng_move
             should_change_angle = prng.random()
-            deg = prng.uniform(-30,30)
+            deg = prng.uniform(-30, 30)
 
             if 0.2 > should_change_angle:
                 self.move.rotate_ip(deg)
@@ -181,22 +181,36 @@ class PPLive(Simulation):
                 elif event.key == pg.K_3:
                     self.selection = Selection.DEATH_THR
 
-        print(f"rep.thr.: {self.config.reproduction_threshold:.1f} - rep.cost: {self.config.reproduction_cost:.1f} - death thr: {self.config.death_threshold:.1f}")
+        # print(f"rep.thr.: {self.config.reproduction_threshold:.1f} - rep.cost: {self.config.reproduction_cost:.1f} - death thr: {self.config.death_threshold:.1f}")
 
-(
-    PPLive(
+
+
+# Define a function to run the simulation with the given radius and save the CSV file with the provided name
+def run_simulation(csv_filename: str):
+    simulation = PPLive(
         PPConfig(
             image_rotation=True,
             movement_speed=1,
             radius=150,
-            seed=1,
+            duration=40000
         )
-    )
+    ).batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) \
+    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) \
+    .run()\
+    .snapshots\
+    .write_csv(csv_filename)
 
-    .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"]) #5
-    .batch_spawn_agents(45, Prey, images = ["images/red.png"]) #25
-    .run()
-    .snapshots
-    .write_csv("predprey.csv")
-)
 
+# Define a function to generate a unique CSV filename based on the radius
+def generate_csv_filename(run_index: int):
+    return f"energy_run_{run_index}.csv"
+
+# Define the radius values and the number of runs
+num_runs = 30  # Change this to the desired number of runs
+
+# Run the simulation multiple times with different radii and save the CSV files
+
+for run in range(num_runs):
+    csv_filename = generate_csv_filename(run)
+    run_simulation(csv_filename)
+    print(f"CSV file saved as {csv_filename}.")
