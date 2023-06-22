@@ -15,9 +15,9 @@ from vi.simulation import HeadlessSimulation
 @deserialize
 @dataclass
 class PPConfig(Config):
-    delta_time: float = 2
+    delta_time: float = 0.9
     mass: int = 20
-    reproduction_threshold: int = 0.3
+    reproduction_threshold: int = 0.2
     reproduction_chance: float = 0.0015
     counter: int = 500
     counter1: int = 400
@@ -85,7 +85,6 @@ class Prey(Agent):
         self.reproduction_chance = self.config.reproduction_chance
         self.counter1 = self.config.counter1
 
-
     def update(self):
 
      # Adjust the reproduction chance as desired
@@ -115,7 +114,7 @@ class Prey(Agent):
                 self.pos += self.move * self.config.delta_time  # wandering
     
 
-class PPLive(HeadlessSimulation):
+class PPLive(Simulation):
       config: PPConfig
 
 (
