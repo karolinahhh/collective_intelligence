@@ -4,17 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="76333c37-2639-4583-8268-39cf0a135fc1" name="Default Changelist" comment="4circle aggregation radius 10 done">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/dog.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep_emoji (1).png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/sheep_shaun (2).webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/wolf.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assignment2/images/wolf_final (1).png" afterDir="false" />
+    <list default="true" id="76333c37-2639-4583-8268-39cf0a135fc1" name="Default Changelist" comment="changed icons">
+      <change afterPath="$PROJECT_DIR$/assignment2/predator_prey_flocking_nofear.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assignment2/predator_prey.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predator_prey.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assignment2/predprey.csv" beforeDir="false" afterPath="$PROJECT_DIR$/assignment2/predprey.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assignment0/flocking.py" beforeDir="false" afterPath="$PROJECT_DIR$/assignment0/flocking.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +23,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/assignment2" />
+  </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assignment2" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/assignment2/images" />
       <recent name="$PROJECT_DIR$/graphs_of_runs" />
@@ -124,7 +124,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="predator_prey" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="no_fear_flocking" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="collective_intelligence" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -136,7 +136,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/assignment2/predator_prey.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/assignment2/no_fear_flocking.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -148,7 +148,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.data" />
-        <item itemvalue="Python.predator_prey" />
+        <item itemvalue="Python.no_fear_flocking" />
         <item itemvalue="Python.aggregation" />
         <item itemvalue="Python.automatic_aggregation" />
         <item itemvalue="Python.analysis_box_plot" />
@@ -191,7 +191,14 @@
       <option name="presentableId" value="Default" />
       <updated>1687334743574</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="changed icons">
+      <created>1687352021439</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1687352021439</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -211,6 +218,7 @@
     <MESSAGE value="running simulations (1xone circle, 1xfour circles)" />
     <MESSAGE value="cookie and cockroach icons" />
     <MESSAGE value="4circle aggregation radius 10 done" />
-    <option name="LAST_COMMIT_MESSAGE" value="4circle aggregation radius 10 done" />
+    <MESSAGE value="changed icons" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed icons" />
   </component>
 </project>
