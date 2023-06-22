@@ -20,7 +20,12 @@ df=(
     .sort("frame")
     .collect()
     .limit(15000)
+
     )
+
+# pandas_df = df.to_pandas()
+# df.to_csv('ampli.csv', index=False)
+df.write_csv('ampli.csv')
 
 # Plotting
 plt.plot(df['frame'], df['pred_count'], label='Predator Count')
