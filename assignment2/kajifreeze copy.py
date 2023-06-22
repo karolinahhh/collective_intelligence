@@ -30,7 +30,7 @@ class PPConfig(Config):
     energy_loss: float = 0.05
     reproduction_chance: float = 0.002 #0.002
     prob_reproduce: float = 0.5
-    # fear_factor: float = 0.0005 #10 predators to never reproduce
+    fear_factor: float = 0.0005 #10 predators to never reproduce
 
 
 class Predator(Agent):
@@ -107,14 +107,14 @@ class Prey(Agent):
         self.state = state
         self.agent_type= agent_type
         self.reproduction_chance = self.config.reproduction_chance
-        # self.fear_factor = self.config.fear_factor
+        self.fear_factor = self.config.fear_factor
 
     def update(self):
         predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
         # print(predator_count)
-        # should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
+        should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
         #should_reproduce = 1 / (1 + np.exp(-predator_count*0.1))
-        should_reproduce = random.random()
+        # should_reproduce = random.random()
         # print(should_reproduce)
 
         if should_reproduce < self.reproduction_chance:
