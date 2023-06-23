@@ -184,7 +184,7 @@ def run_simulation(csv_filename):
         reproduction_chance = 0.0015, #0.002
         prob_reproduce = 0.5,
         image_rotation=True,
-        movement_speed=1,
+        movement_speed=3,
         radius=15,
     )
 

@@ -11,6 +11,7 @@ from pygame.surface import Surface
 from vi import Agent, Simulation
 from vi.config import Config, dataclass, deserialize
 from vi.simulation import HeadlessSimulation
+import pandas as pd
 
 #introduce flocking (flocking/not)
 #stopping after full (full/nofull)
@@ -175,7 +176,7 @@ def run_simulation(csv_filename):
         prob_reproduce = 0.5,
         image_rotation=True,
         movement_speed=3,
-        radius=15,
+        radius=150,
         fear_factor = 0.0005
     )
 
