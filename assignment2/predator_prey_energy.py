@@ -82,8 +82,10 @@ class Predator(Agent):
             prey_c=0
 
         if self.energy >= self.reproduction_threshold:
-            self.reproduce()
-            self.energy -= self.reproduction_cost
+            reproduction_chance = random.random()
+            if reproduction_chance > 0.5:
+                self.reproduce()
+                self.energy -= self.reproduction_cost
 
         if self.energy < self.death_threshold:
              self.kill()
@@ -170,15 +172,15 @@ class PPLive(Simulation):
     
 def run_simulation(csv_filename):
     config = PPConfig(
-        delta_time = 2, #1
+        delta_time = 1, #1
         mass = 20,
-        energy = 40, #50
-        eat_threshold = 0.5,
-        prey_worth= 15, #was 10
-        reproduction_threshold = 50,
-        reproduction_cost = 30,
-        death_threshold = 20, #20
-        energy_loss= 0.05,
+        energy = 60, #50
+        eat_threshold = 0.3,
+        prey_worth= 25, #was 10
+        reproduction_threshold = 90,
+        reproduction_cost = 20,
+        death_threshold = 30, #20
+        energy_loss= 0.08,
         reproduction_chance = 0.0015, #0.002
         prob_reproduce = 0.5,
         image_rotation=True,
@@ -213,7 +215,7 @@ num_runs = 25  # Change this to the desired number of runs
 simulation_durations = []
 
 for run in range(num_runs):
-    csv_filename = f"freeze_run_{run}.csv"  # Customize the filename as needed
+    csv_filename = f"energy_run_{run}.csv"  # Customize the filename as needed
     duration = run_simulation(csv_filename)
     simulation_durations.append(duration)
     total_duration += duration
