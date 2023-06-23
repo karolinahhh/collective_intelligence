@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_path= "predprey.csv"
+file_path= "energy_run_0.csv"
 
 df = pl.read_csv(file_path)
 df=(
@@ -24,7 +24,7 @@ df=(
     # .limit(15000)
     )
 
-df.to_csv("ampli.csv")
+# df.to_csv("ampli.csv")
 
 # Plotting
 plt.plot(df['simulated_seconds'], df['pred_count'], label='Predator Count')
