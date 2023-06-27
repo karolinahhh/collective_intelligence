@@ -132,7 +132,7 @@ class Prey(Agent):
         # should_reproduce = 1 / (1 + np.exp(-predator_count*0.1))
         # should_reproduce = random.random()
         # Check if fear_factor exceeds the threshold
-
+        self.change_image(0)
         if predator_count * self.fear_factor >= 0.0025:
             # print(predator_count * self.fear_factor)
             # Change color of prey (example: from red to blue)
@@ -230,7 +230,7 @@ num_runs = 1  # Change this to the desired number of runs
 simulation_durations = []
 
 for run in range(num_runs):
-    csv_filename = f"freeze_fear_{run}.csv"  # Customize the filename as needed
+    csv_filename = f"camouflage_{run}.csv"  # Customize the filename as needed
     duration = run_simulation(csv_filename)
     simulation_durations.append(duration)
     total_duration += duration
