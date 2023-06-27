@@ -73,7 +73,6 @@ class Predator(Agent):
                     .first()
 
             )
-            print(type(prey))
             if prey is not None:
                 prob_eat = random.random()
                 if (prob_eat < self.eat_threshold) or (prey.state == "CAMOUFLAGE" and prob_eat < self.eat_threshold/2):
@@ -177,7 +176,7 @@ class PPLive(Simulation):
         # print("preds", preds)
         # print("prey", prey)
 
-        if preds == 0 or prey == 0:
+        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
             self.stop()
 
 
