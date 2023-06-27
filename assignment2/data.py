@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_path= "energy_run_0.csv"
+file_path= "safety_0.csv"
 
 df = pl.read_csv(file_path)
 df=(
