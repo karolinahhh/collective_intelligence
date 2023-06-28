@@ -32,10 +32,12 @@ class PPConfig(Config):
     reproduction_chance: float = 0.002 #0.002
     prob_reproduce: float = 0.5
     image_rotation: bool =True,
-    movement_speed: int =1,
-    radius: int =150
+    movement_speed: int = 1,
+    radius: int = 150
 
     # fear_factor: float = 0.0005 #10 predators to never reproduce
+red_image_path = "images/red.png"
+green_image_path = "images/green.png"
 
 
 class Predator(Agent):
@@ -55,6 +57,7 @@ class Predator(Agent):
         self.full_threshold = self.config.full_threshold
 
     def update(self):
+
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
 
@@ -73,13 +76,14 @@ class Predator(Agent):
 
             if prey is not None:
                 prob_eat = random.random()
-                if prob_eat < self.eat_threshold:
+                if (prob_eat < self.eat_threshold):
                     prey.kill()
                     self.energy += self.prey_worth
 
             if self.energy >= self.reproduction_threshold:
-                reproduction_chance = random.random()
-                if reproduction_chance > 0.5:
+                reproduction_prob = random.random()
+
+                if reproduction_prob > 0.5:
                     self.reproduce()
                     self.energy -= self.reproduction_cost
 
@@ -120,12 +124,13 @@ class Prey(Agent):
         predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
         # print(predator_count)
         # should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
-        #should_reproduce = 1 / (1 + np.exp(-predator_count*0.1))
+        # should_reproduce = 1 / (1 + np.exp(-predator_count*0.1))
         should_reproduce = random.random()
         # print(should_reproduce)
 
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
+
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
 
@@ -187,7 +192,7 @@ def run_simulation(csv_filename):
     simulation = (
         PPLive(config)
         .batch_spawn_agents(30, Predator, images=["images/medium-bird.png"])
-        .batch_spawn_agents(45, Prey, images=["images/red.png"])
+        .batch_spawn_agents(45, Prey, images=[red_image_path, green_image_path])
         .run()
         .snapshots
         .write_csv(csv_filename)
