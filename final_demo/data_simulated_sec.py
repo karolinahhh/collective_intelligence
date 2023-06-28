@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_path= "predprey.csv"
+file_path= "camouflage_0.csv"
 
 df = pl.read_csv(file_path)
 df=(
@@ -13,8 +13,9 @@ df=(
 
     .agg(
         [
-            pl.col("agent").eq(0).sum().alias("pred_count"),
-            pl.col("agent").eq(1).sum().alias("prey_count"),
+            pl.col("prey type").eq(0).sum().alias("red_count"),
+            pl.col("prey type").eq(1).sum().alias("green_count"),
+            pl.col("prey type").eq(2).sum().alias("pred_count"),
             pl.col("id").count().alias("total count"),
         ]
     )
@@ -25,11 +26,12 @@ df=(
     )
 
 # Plotting
-plt.plot(df['simulated_seconds'], df['pred_count'], label='Predator Count')
-plt.plot(df['simulated_seconds'], df['prey_count'], label='Prey Count')
+plt.plot(df['simulated_seconds'], df['red_count'], label='Red Count')
+plt.plot(df['simulated_seconds'], df['green_count'], label='Green Count')
+# plt.plot(df['simulated_seconds'], df['pred_count'], label='Predator Count')
 plt.xlabel('Simulated_seconds')
 plt.ylabel('Count')
-plt.title('Predator and Prey Count Over Time')
+plt.title('Predator and Prey Types Count Over Time')
 plt.legend()
 
 # Display the plot
