@@ -28,7 +28,7 @@ class PPConfig(Config):
     reproduction_threshold: int = 50
     reproduction_cost: int = 10
     death_threshold: int = 25  # 20
-    full_threshold: int = 50 == 70
+    full_threshold: int = 50
     energy_loss: float = 0.05
     reproduction_chance: float = 0.002  # 0.002
     prob_reproduce: float = 0.5
@@ -82,7 +82,7 @@ class Predator(Agent):
             )
             if prey is not None:
                 prob_eat = random.random()
-                if (prob_eat < self.eat_threshold) or (prey._image_index == 1 and prob_eat < self.eat_threshold/2):
+                if (prey._image_index == 0 and prob_eat < self.eat_threshold) or (prey._image_index == 1 and prob_eat < self.eat_threshold/100):
                     prey.kill()
                     self.energy += self.prey_worth
 
@@ -128,7 +128,6 @@ class Prey(Agent):
         self.prey_type = 0
         self.reproduction_chance = self.config.reproduction_chance
         self.fear_factor = self.config.fear_factor
-        self.probability_of_being_eaten = self.config.probability_of_being_eaten
 
 
     def update(self):
@@ -186,61 +185,40 @@ class PPLive(Simulation):
                 .get_column("agent")
         )
 
-        # # Calculate the sum of birds with green pictures
-        # green_birds_sum = (
-        #     agents
-        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
-        #         .filter(pl.col("image_index") == 1)  # Green pictures have image_index 1
-        #         .sum()
-        # )
-        #
-        # # Calculate the sum of prey with red pictures
-        # red_prey_sum = (
-        #     agents
-        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
-        #         .filter(pl.col("image_index") == 0)  # Red pictures have image_index 0
-        #         .sum()
-        # )
-        #
-        # # Save the data for the current frame
-        # self.save_data("green_birds_sum", green_birds_sum)
-        # self.save_data("red_prey_sum", red_prey_sum)
 
         preds = agents.eq(0).sum()
         prey = agents.eq(1).sum()
 
 
-        # print("preds", preds)
-        # print("prey", prey)
-
-        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
+        if preds == 0 or prey == 0 : #or preds == 200 or prey == 200
             self.stop()
 
 
 def run_simulation(csv_filename):
     config = PPConfig(
-        delta_time=1,  # 1
+        delta_time=1,
         mass=20,
-        energy=60,  # 50
-        eat_threshold=0.3,
-        prey_worth=25,  # was 10
-        reproduction_threshold=90,
-        reproduction_cost=20,
-        death_threshold=30,  # 20
-        full_threshold=70,
-        energy_loss=0.08,
-        reproduction_chance=0.0015,  # 0.002
+        energy=50,
+        eat_threshold=0.5,
+        prey_worth=25, 
+        reproduction_threshold=75,
+        reproduction_cost=30,
+        death_threshold=25, 
+        full_threshold=75, #80 for good run
+        energy_loss=0.05,
+        reproduction_chance=0.0015,
         prob_reproduce=0.5,
         image_rotation=True,
         movement_speed=3,
         radius=150,
-        fear_factor=0.0005
+        fear_factor=0.0005,
+        seed= 3
     )
 
     start_time = time.time()
     simulation = (
         PPLive(config)
-            .batch_spawn_agents(25, Predator, images=["images/medium-bird.png"])
+            .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"])
             .batch_spawn_agents(45, Prey, images=[red_image_path, green_image_path])
             .run()
             .snapshots
@@ -262,7 +240,7 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 1
+num_runs = 15
 # Change this to the desired number of runs
 simulation_durations = []
 
@@ -271,7 +249,7 @@ for run in range(num_runs):
     duration = run_simulation(csv_filename)
     simulation_durations.append(duration)
     total_duration += duration
-    print(f"Simulation Run {run + 1}:")
+    print(f"TRY Simulation Run {run + 1}:")
     print(f"CSV file saved as {csv_filename}.")
     print(f"Duration: {duration} seconds.")
     print()
