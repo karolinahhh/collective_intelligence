@@ -35,10 +35,6 @@ class PPConfig(Config):
     movement_speed: int = 1,
     radius: int = 150
 
-    # fear_factor: float = 0.0005 #10 predators to never reproduce
-red_image_path = "images/red.png"
-green_image_path = "images/green.png"
-
 
 class Predator(Agent):
     config: PPConfig
@@ -166,33 +162,33 @@ class PPLive(Simulation):
         # print("preds", preds)
         # print("prey", prey)
         
-        if preds == 0 or prey == 0:
+        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
             self.stop()
     
 def run_simulation(csv_filename):
     config = PPConfig(
         delta_time = 1, #1
         mass = 20,
-        energy = 60, #50
-        eat_threshold = 0.3,
-        prey_worth= 10, #was 10
+        energy = 50, #50
+        eat_threshold = 0.5,
+        prey_worth= 25, #was 10
         reproduction_threshold = 75,
-        reproduction_cost = 20,
-        death_threshold = 20, #20
-        full_threshold = 70,
-        energy_loss= 0.06,
-        reproduction_chance = 0.0018, #0.002
-        prob_reproduce = 0.95,
+        reproduction_cost = 30,
+        death_threshold = 25, #20
+        full_threshold = 80,
+        energy_loss= 0.05,
+        reproduction_chance = 0.0015, #0.002
+        prob_reproduce = 0.5,
         image_rotation=True,
         movement_speed=3,
-        radius=15,
+        radius=150
     )
 
     start_time = time.time()
     simulation = (
         PPLive(config)
-        .batch_spawn_agents(30, Predator, images=["images/medium-bird.png"])
-        .batch_spawn_agents(45, Prey, images=[red_image_path, green_image_path])
+        .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"])
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
         .run()
         .snapshots
         .write_csv(csv_filename)

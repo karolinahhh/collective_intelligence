@@ -63,8 +63,6 @@ class Predator(Agent):
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
 
-
-
         else:
             self.state = 'WANDERING'
 
@@ -79,14 +77,14 @@ class Predator(Agent):
             )
             if prey is not None:
                 prob_eat = random.random()
-                if (prob_eat < self.eat_threshold) or (prey._image_index == 1 and prob_eat < self.eat_threshold/2):
+                if (prob_eat < self.eat_threshold and prey._image_index == 0) or (prey._image_index == 1 and prob_eat < self.eat_threshold/100):
                     prey.kill()
                     self.energy += self.prey_worth
 
             if self.energy >= self.reproduction_threshold:
                 reproduction_prob = random.random()
                 print(reproduction_prob)
-                if reproduction_prob > 0.4:
+                if reproduction_prob > 0.5:
                     self.reproduce()
                     self.energy -= self.reproduction_cost
 
@@ -183,26 +181,6 @@ class PPLive(Simulation):
                 .get_column("agent")
         )
 
-        # # Calculate the sum of birds with green pictures
-        # green_birds_sum = (
-        #     agents
-        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
-        #         .filter(pl.col("image_index") == 1)  # Green pictures have image_index 1
-        #         .sum()
-        # )
-        #
-        # # Calculate the sum of prey with red pictures
-        # red_prey_sum = (
-        #     agents
-        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
-        #         .filter(pl.col("image_index") == 0)  # Red pictures have image_index 0
-        #         .sum()
-        # )
-        #
-        # # Save the data for the current frame
-        # self.save_data("green_birds_sum", green_birds_sum)
-        # self.save_data("red_prey_sum", red_prey_sum)
-
         preds = agents.eq(0).sum()
         prey = agents.eq(1).sum()
 
@@ -218,15 +196,15 @@ def run_simulation(csv_filename):
     config = PPConfig(
         delta_time=1,  # 1
         mass=20,
-        energy=60,  # 50
-        eat_threshold=0.3,
+        energy=50,  # 50
+        eat_threshold=0.5,
         prey_worth=25,  # was 10
-        reproduction_threshold=90,
-        reproduction_cost=10,
-        death_threshold=20,  # 20
-        full_threshold=70,
-        energy_loss=0.08,
-        reproduction_chance=0.002,  # 0.002
+        reproduction_threshold=75,
+        reproduction_cost=30,
+        death_threshold=25,  # 20
+        full_threshold=75,
+        energy_loss=0.05,
+        reproduction_chance=0.0015,  # 0.002
         prob_reproduce=0.5,
         image_rotation=True,
         movement_speed=3,
@@ -237,8 +215,8 @@ def run_simulation(csv_filename):
     start_time = time.time()
     simulation = (
         PPLive(config)
-            .batch_spawn_agents(30, Predator, images=["images/medium-bird.png"])
-            .batch_spawn_agents(65, Prey, images=[red_image_path, green_image_path])
+            .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"])
+            .batch_spawn_agents(45, Prey, images=[red_image_path, green_image_path])
             .run()
             .snapshots
             .write_csv(csv_filename)
