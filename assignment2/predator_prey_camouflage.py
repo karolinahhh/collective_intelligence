@@ -36,6 +36,7 @@ class PPConfig(Config):
     probability_of_being_eaten: float = 1.0
 
 
+
 red_image_path = "images/red.png"
 green_image_path = "images/green.png"
 
@@ -55,10 +56,16 @@ class Predator(Agent):
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
         self.full_threshold = self.config.full_threshold
+        self.prey_type = 2
 
     def update(self):
+
+        prey_color = self.prey_type
+        # print(prey_color)
+        self.save_data("prey type", prey_color)
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
+
 
 
         else:
@@ -75,7 +82,7 @@ class Predator(Agent):
             )
             if prey is not None:
                 prob_eat = random.random()
-                if (prob_eat < self.eat_threshold) or (prey.state == "CAMOUFLAGE" and prob_eat < self.eat_threshold/2):
+                if (prob_eat < self.eat_threshold) or (prey._image_index == 1 and prob_eat < self.eat_threshold/2):
                     prey.kill()
                     self.energy += self.prey_worth
 
@@ -118,10 +125,11 @@ class Prey(Agent):
         super().__init__(images=images, simulation=simulation)
         self.state = state
         self.agent_type = agent_type
+        self.prey_type = 0
         self.reproduction_chance = self.config.reproduction_chance
         self.fear_factor = self.config.fear_factor
-        self._image_index = 0
         self.probability_of_being_eaten = self.config.probability_of_being_eaten
+
 
     def update(self):
         predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
@@ -131,17 +139,25 @@ class Prey(Agent):
         # should_reproduce = 1 / (1 + np.exp(-predator_count*0.1))
         # should_reproduce = random.random()
         # Check if fear_factor exceeds the threshold
-        self.change_image(0)
-        if predator_count * self.fear_factor >= 0.0025:
-            # print(predator_count * self.fear_factor)
-            # Change color of prey (example: from red to blue)
+
+        if predator_count * self.fear_factor >= 0.0015:
             self.change_image(1)
             self.state = "CAMOUFLAGE"
+            self.prey_type = 1
+        else:
+            self.change_image(0)
+            self.state = "WANDERING"
+            self.prey_type = 0
+
+        prey_color = self.prey_type
+        self.save_data("prey type", prey_color)
 
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
+
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
+
 
     def change_position(self):
         self.there_is_no_escape()
@@ -170,8 +186,29 @@ class PPLive(Simulation):
                 .get_column("agent")
         )
 
+        # # Calculate the sum of birds with green pictures
+        # green_birds_sum = (
+        #     agents
+        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
+        #         .filter(pl.col("image_index") == 1)  # Green pictures have image_index 1
+        #         .sum()
+        # )
+        #
+        # # Calculate the sum of prey with red pictures
+        # red_prey_sum = (
+        #     agents
+        #         .filter((pl.col("agent_type") == 1) & (pl.col("_image_index") == 0))
+        #         .filter(pl.col("image_index") == 0)  # Red pictures have image_index 0
+        #         .sum()
+        # )
+        #
+        # # Save the data for the current frame
+        # self.save_data("green_birds_sum", green_birds_sum)
+        # self.save_data("red_prey_sum", red_prey_sum)
+
         preds = agents.eq(0).sum()
         prey = agents.eq(1).sum()
+
 
         # print("preds", preds)
         # print("prey", prey)
@@ -203,7 +240,7 @@ def run_simulation(csv_filename):
     start_time = time.time()
     simulation = (
         PPLive(config)
-            .batch_spawn_agents(20, Predator, images=["images/medium-bird.png"])
+            .batch_spawn_agents(25, Predator, images=["images/medium-bird.png"])
             .batch_spawn_agents(45, Prey, images=[red_image_path, green_image_path])
             .run()
             .snapshots
@@ -225,7 +262,8 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 1  # Change this to the desired number of runs
+num_runs = 1
+# Change this to the desired number of runs
 simulation_durations = []
 
 for run in range(num_runs):

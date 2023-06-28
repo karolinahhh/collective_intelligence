@@ -48,6 +48,7 @@ class Predator(Agent):
         self.death_threshold = self.config.death_threshold
         self.energy_loss = self.config.energy_loss
         self.full_threshold = self.config.full_threshold
+        self._still_stuck = False
 
 
     def update(self):
