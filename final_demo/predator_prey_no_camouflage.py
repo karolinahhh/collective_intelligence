@@ -144,7 +144,7 @@ class Prey(Agent):
 
             self.pos += self.move * self.config.delta_time  # wandering
     
-class PPLive(Simulation):
+class PPLive(HeadlessSimulation):
     config: PPConfig
 
     def after_update(self):
@@ -181,7 +181,8 @@ def run_simulation(csv_filename):
         prob_reproduce = 0.5,
         image_rotation=True,
         movement_speed=3,
-        radius=150
+        radius=150,
+        seed=3
     )
 
     start_time = time.time()
@@ -207,7 +208,7 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 1
+num_runs = 50
 simulation_durations = []
 
 for run in range(num_runs):
