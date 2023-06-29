@@ -144,7 +144,7 @@ class Prey(Agent):
         self.fear_factor = self.config.fear_factor
         self.num_predators= self.config.num_predators
         self.counter = counter
-        self.lifespan = self.config.lifespan
+        # self.lifespan = self.config.lifespan
 
     def update(self):
 
@@ -162,15 +162,14 @@ class Prey(Agent):
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
 
-        if self.counter > self.lifespan:
-            self.kill()
+        # if self.counter > self.lifespan:
+        #     self.kill()
 
     def change_position(self):
         self.there_is_no_escape()
 
         if self.state == "HIDING":
             self.counter += 1
-            print(self.counter)
             if self.counter > 20:
                 self.freeze_movement()
         else:
