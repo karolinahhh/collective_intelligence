@@ -31,6 +31,7 @@ class PPConfig(Config):
     fear_factor: float = 0.0005 #10 predators to never reproduce
     num_predators: int = 0
     lifespan: int = 100
+    p_join: float = 0.5
 
 
 class Predator(Agent):
@@ -145,11 +146,13 @@ class Prey(Agent):
         self.num_predators= self.config.num_predators
         self.counter = counter
         self.lifespan = self.config.lifespan
+        self.p_join = self.config.p_join
+        self.p = random.random()
 
     def update(self):
-
         predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
-        if predator_count > self.num_predators and self.on_site():
+        #if predator_count > self.num_predators and self.on_site():
+        if self.p < self.p_join and self.on_site():
             self.state = "HIDING"
         else:
             self.state = "WANDERING"
@@ -171,8 +174,19 @@ class Prey(Agent):
 
         if self.state == "HIDING":
             self.counter += 1
-            if self.counter > 50:
+            print(self.p)
+            # self.pos += self.move * self.config.delta_time
+            # print(self.p)
+            if self.counter < 20:
+                self.pos += self.move * self.config.delta_time
+                #self.freeze_movement()
+                # self.state = "WANDERING"
+            elif self.counter > 100:
+                self.state = "WANDERING"
+                self.p = random.random()
+            else:
                 self.freeze_movement()
+
         else:
             prng = self.shared.prng_move
             should_change_angle = prng.random()
