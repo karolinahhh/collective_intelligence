@@ -155,8 +155,9 @@ class Prey(Agent):
             self.state = "WANDERING"
             self.counter = 0
 
-        # should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
-        should_reproduce = random.random()
+        should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
+        # should_reproduce = random.random()
+
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
         agent_type = self.agent_type
@@ -170,7 +171,7 @@ class Prey(Agent):
 
         if self.state == "HIDING":
             self.counter += 1
-            if self.counter > 20:
+            if self.counter > 50:
                 self.freeze_movement()
         else:
             prng = self.shared.prng_move
@@ -199,7 +200,7 @@ class PPLive(Simulation):
         prey = agents.eq(1).sum()
 
         
-        if preds == 0 or prey == 0:
+        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
             self.stop()
     
 def run_simulation(csv_filename):
@@ -227,8 +228,8 @@ def run_simulation(csv_filename):
         PPLive(config)
         .spawn_site("images/light_blue_circle.png", 375, 375)
         .spawn_obstacle("images/light_blue_circle.png", 375, 375)
-        .batch_spawn_agents(25, Predator, images=["images/medium-bird.png"]) #20
-        .batch_spawn_agents(50, Prey, images=["images/red.png"])
+        .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"]) #20
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
 
         .run()
         .snapshots

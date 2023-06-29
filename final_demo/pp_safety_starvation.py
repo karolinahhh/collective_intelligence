@@ -21,8 +21,8 @@ class PPConfig(Config):
     energy: int = 30 #50
     eat_threshold: int = 0.5
     prey_worth: int = 10 #was 10
-    reproduction_threshold: int = 50
-    reproduction_cost: int = 10
+    reproduction_threshold: int = 40
+    reproduction_cost: int = 5
     death_threshold: int = 10 #25
     full_threshold: int = 50
     energy_loss: float = 0.05
@@ -30,7 +30,7 @@ class PPConfig(Config):
     prob_reproduce: float = 0.5
     fear_factor: float = 0.0005 #10 predators to never reproduce
     num_predators: int = 0
-    lifespan: int = 100
+    lifespan: int = 300
 
 
 class Predator(Agent):
@@ -155,8 +155,8 @@ class Prey(Agent):
             self.state = "WANDERING"
             self.counter = 0
 
-        # should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
-        should_reproduce = random.random()
+        should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
+        # should_reproduce = random.random()
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
         agent_type = self.agent_type
@@ -171,7 +171,7 @@ class Prey(Agent):
         if self.state == "HIDING":
             self.counter += 1
             print(self.counter)
-            if self.counter > 20:
+            if self.counter > 40:
                 self.freeze_movement()
         else:
             prng = self.shared.prng_move
@@ -199,8 +199,7 @@ class PPLive(Simulation):
         preds = agents.eq(0).sum()
         prey = agents.eq(1).sum()
 
-        
-        if preds == 0 or prey == 0:
+        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
             self.stop()
     
 def run_simulation(csv_filename):
@@ -220,7 +219,8 @@ def run_simulation(csv_filename):
         image_rotation=True,
         movement_speed=3,
         radius=100,
-        fear_factor = 0.0005
+        fear_factor = 0.0005,
+        # lifespan = 500
     )
 
     start_time = time.time()
@@ -228,8 +228,8 @@ def run_simulation(csv_filename):
         PPLive(config)
         .spawn_site("images/light_blue_circle.png", 375, 375)
         .spawn_obstacle("images/light_blue_circle.png", 375, 375)
-        .batch_spawn_agents(25, Predator, images=["images/medium-bird.png"]) #20
-        .batch_spawn_agents(50, Prey, images=["images/red.png"])
+        .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"]) #20
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
 
         .run()
         .snapshots
