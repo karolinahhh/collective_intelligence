@@ -30,7 +30,7 @@ class PPConfig(Config):
     prob_reproduce: float = 0.5
     fear_factor: float = 0.0005 #10 predators to never reproduce
     num_predators: int = 0
-    # lifespan: int = 100
+    lifespan: int = 100
 
 
 class Predator(Agent):
