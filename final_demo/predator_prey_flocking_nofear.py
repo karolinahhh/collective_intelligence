@@ -162,9 +162,15 @@ class Prey(Agent):
         cohesion_weight = self.config.cohesion_weight
         separation_weight = self.config.separation_weight
 
-        neighbours_count = self.in_proximity_accuracy().count()
+       # prey_count = self.in_proximity_accuracy().filter(Prey).count()
+        prey_count = (
+            self.in_proximity_accuracy()
+                .without_distance()  # removes distance (?)
+                .filter_kind(Prey)
+                .count()
+        )
 
-        if neighbours_count > 0:
+        if prey_count > 0:
             friends = list(self.in_proximity_accuracy().filter_kind(Prey))
             for agent, _ in friends:
                 if self.pos.distance_to(agent.pos) <= 20:
@@ -172,7 +178,7 @@ class Prey(Agent):
                 else:
                     separation_weight = self.config.separation_weight
 
-        if neighbours_count != 0:
+        if prey_count != 0:
             sum_velocities = Vector2()
             separation = Vector2()
             sum_positions = Vector2()
@@ -182,12 +188,12 @@ class Prey(Agent):
                 separation += self.pos - agent.pos
                 sum_positions += agent.pos
             # alignment
-            sum_velocities = sum_velocities / neighbours_count
+            sum_velocities = sum_velocities / prey_count
             alignment = sum_velocities - self.move
             # separation
-            separation = separation / neighbours_count
+            separation = separation / prey_count
             # cohesion
-            avg_pos_neighbouring_birds = sum_positions / neighbours_count
+            avg_pos_neighbouring_birds = sum_positions / prey_count
             cohesion_force = avg_pos_neighbouring_birds - self.pos
             cohesion = cohesion_force - self.move
 
@@ -261,7 +267,7 @@ class Selection(Enum):
     DEATH_THR = auto()
 
 
-class PPLive(Simulation):
+class PPLive(HeadlessSimulation):
     selection: Selection = Selection.REP_THR
     config: PPConfig
 
@@ -300,7 +306,7 @@ def run_simulation(csv_filename):
         image_rotation=True,
         movement_speed=3,
         fear_factor=0.0005,
-        radius=50, # for flocking its 50 not 150
+        radius=25, # for flocking its 50 not 150
         seed=3
     )
 
@@ -328,11 +334,11 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 1
+num_runs = 30
 simulation_durations = []
 
 for run in range(num_runs):
-    csv_filename = f"flocking_no_fear_{run}.csv"
+    csv_filename = f"flocking_without_fear_{run}.csv"
     duration = run_simulation(csv_filename)
     simulation_durations.append(duration)
     total_duration += duration
