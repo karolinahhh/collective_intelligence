@@ -303,7 +303,7 @@ class PPLive(Simulation):
         )
     )
 
-        .batch_spawn_agents(20, Predator, images=["images/wolf.png"])  # 5
+        .batch_spawn_agents(20, Predator, images=["images/wolf_final_emoji (1).png"])  # 5
         .batch_spawn_agents(45, Prey, images=["images/sheep.png"])  # 25
         .run()
         .snapshots
