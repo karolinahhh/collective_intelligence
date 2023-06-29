@@ -33,9 +33,6 @@ class PPConfig(Config):
     reproduction_chance: float = 0.002  # 0.002
     prob_reproduce: float = 0.5
     fear_factor: float = 0.0005  # 10 predators to never reproduce
-    probability_of_being_eaten: float = 1.0
-
-
 
 red_image_path = "images/red.png"
 green_image_path = "images/green.png"
@@ -61,7 +58,6 @@ class Predator(Agent):
     def update(self):
 
         prey_color = self.prey_type
-        # print(prey_color)
         self.save_data("prey type", prey_color)
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
@@ -86,10 +82,10 @@ class Predator(Agent):
                     prey.kill()
                     self.energy += self.prey_worth
 
-
             if self.energy >= self.reproduction_threshold:
                 reproduction_prob = random.random()
-                if reproduction_prob > 0.5:
+
+                if reproduction_prob > 0.4:
                     self.reproduce()
                     self.energy -= self.reproduction_cost
 
