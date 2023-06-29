@@ -6,6 +6,7 @@ import pygame as pg
 import numpy as np
 import polars as pl
 import pygame.display
+import pandas as pd
 from pygame.math import Vector2  # delta between the current and next position (x,y)
 from pygame.surface import Surface
 from vi import Agent, Simulation
@@ -42,9 +43,7 @@ class PPConfig(Config):
     alignment_weight: float = 2
     cohesion_weight: float = 0.5
     separation_weight: float = 0.5
-
-    def weights(self) -> tuple[float, float, float]:
-        return (self.alignment_weight, self.cohesion_weight, self.separation_weight)
+    fear_factor: float = 0.0005
 
 
 class Predator(Agent):
@@ -130,12 +129,16 @@ class Prey(Agent):
         self.state = state
         self.agent_type = agent_type
         self.reproduction_chance = self.config.reproduction_chance
+        self.fear_factor = self.config.fear_factor
+        self._still_stuck = False
 
     def update(self):
         sheep_count = self.in_proximity_accuracy().count()
         # if sheep_count < 50: # reproduce only if the number is below something
         #     print("SC", sheep_count)
-        should_reproduce = random.random()
+        # should_reproduce = random.random()
+        predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
+        should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
         if should_reproduce < self.reproduction_chance:
             self.reproduce()  # reproduce needs to be implemented better later
         agent_type = self.agent_type
@@ -262,48 +265,93 @@ class PPLive(Simulation):
     selection: Selection = Selection.REP_THR
     config: PPConfig
 
-    def handle_event(self, by: float):
-        if self.selection == Selection.REP_THR:
-            self.config.reproduction_threshold += by
-        elif self.selection == Selection.REP_COST:
-            self.config.reproduction_cost += by
-        elif self.selection == Selection.DEATH_THR:
-            self.config.death_threshold += by
+    def after_update(self):
+        super().after_update()
 
-    def before_update(self):
-        super().before_update()
-
-        for event in pg.event.get():
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.handle_event(by=1)
-                elif event.key == pg.K_DOWN:
-                    self.handle_event(by=-1)
-                elif event.key == pg.K_1:
-                    self.selection = Selection.REP_THR
-                elif event.key == pg.K_2:
-                    self.selection = Selection.REP_COST
-                elif event.key == pg.K_3:
-                    self.selection = Selection.DEATH_THR
-
-        print(
-            f"rep.thr.: {self.config.reproduction_threshold:.1f} - rep.cost: {self.config.reproduction_cost:.1f} - death thr: {self.config.death_threshold:.1f}")
-
-
-(
-    PPLive(
-        PPConfig(
-            image_rotation=True,
-            movement_speed=0.5,
-            radius=50,
-            seed=1,
+        agents = (
+            self._metrics.snapshots
+                .filter(pl.col("frame") == self.shared.counter)
+                .get_column("agent")
         )
+
+        preds = agents.eq(0).sum()
+        prey = agents.eq(1).sum()
+
+        # print("preds", preds)
+        # print("prey", prey)
+
+        if preds == 0 or prey == 0 or preds == 200 or prey == 200:
+            self.stop()
+
+def run_simulation(csv_filename):
+    config = PPConfig(
+        delta_time = 1, #1
+        mass = 20,
+        energy = 50, #50
+        eat_threshold = 0.6,
+        prey_worth= 10, #was 10
+        reproduction_threshold = 70,
+        reproduction_cost = 20,
+        death_threshold = 35, #20
+        full_threshold = 65,
+        energy_loss= 0.02,
+        reproduction_chance = 0.0012, #0.002
+        prob_reproduce = 0.8,
+        image_rotation=True,
+        movement_speed=3,
+        fear_factor=0.0005,
+        radius=50, # for flocking its 50 not 150
+        seed=3
     )
 
-        .batch_spawn_agents(20, Predator, images=["images/wolf.png"])  # 5
-        .batch_spawn_agents(45, Prey, images=["images/sheep.png"])  # 25
+    start_time = time.time()
+    simulation = (
+        PPLive(config)
+        .batch_spawn_agents(15, Predator, images=["images/medium-bird.png"])
+        .batch_spawn_agents(45, Prey, images=["images/red.png"])
         .run()
         .snapshots
-        .write_csv("predprey.csv")
-)
+        .write_csv(csv_filename)
+    )
+
+    end_time = time.time()
+
+    duration = end_time - start_time
+    return duration
+
+
+def generate_csv_filename(parameters: dict, run_index: int):
+    excluded_params = ['delta_time', 'mass', 'image_rotation', 'movement_speed', 'radius', 'seed']
+    filtered_params = {key: value for key, value in parameters.items() if key not in excluded_params}
+    parameter_str = "_".join([f"{key}_{value}" for key, value in filtered_params.items()])
+    return f"simulation_{parameter_str}_run_{run_index}.csv"
+
+# Run the simulation multiple times with different parameter combinations
+total_duration = 0
+num_runs = 1
+simulation_durations = []
+
+for run in range(num_runs):
+    csv_filename = f"flocking_no_fear_{run}.csv"
+    duration = run_simulation(csv_filename)
+    simulation_durations.append(duration)
+    total_duration += duration
+    print(f"Simulation Run {run}:")
+    print(f"CSV file saved as {csv_filename}.")
+    print(f"Duration: {duration} seconds.")
+    print()
+
+average_duration = total_duration / num_runs
+print(f"Average Duration: {average_duration} seconds.")
+
+average_duration = total_duration / num_runs
+print(f"Average Duration: {average_duration} seconds.")
+
+# Convert the simulation durations list to a pandas DataFrame for easier analysis
+df = pd.DataFrame({'Simulation Duration': simulation_durations})
+df.index.name = 'Run Index'
+df.sort_values(by='Simulation Duration', ascending=False, inplace=True)
+
+# Print the sorted DataFrame
+print(df)
 
