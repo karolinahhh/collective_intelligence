@@ -133,10 +133,7 @@ class Prey(Agent):
 
 
     def update(self):
-        #sheep_count = self.in_proximity_accuracy().count()
-        # if sheep_count < 50: # reproduce only if the number is below something
-        #     print("SC", sheep_count)
-        #should_reproduce = random.random()
+
         predator_count = self.in_proximity_accuracy().filter_kind(Predator).count()
         should_reproduce = min(1.0, random.random() + predator_count * self.fear_factor)
         if should_reproduce < self.reproduction_chance:
@@ -145,18 +142,6 @@ class Prey(Agent):
         self.save_data("agent", agent_type)
 
     def change_position(self):
-        # self.there_is_no_escape()
-        #
-        # if self.state == "WANDERING":
-        #
-        #     prng = self.shared.prng_move
-        #     should_change_angle = prng.random()
-        #     deg = prng.uniform(-30, 30)
-        #
-        #     if 0.2 > should_change_angle:
-        #         self.move.rotate_ip(deg)
-        #
-        #     self.pos += self.move * self.config.delta_time  # wandering
 
         alignment_weight = self.config.alignment_weight
         cohesion_weight = self.config.cohesion_weight
@@ -167,7 +152,7 @@ class Prey(Agent):
 
         prey_count = (
             self.in_proximity_accuracy()
-            .filter(lambda x: x[1] < self.prey_radius * (pred_count))
+            .filter(lambda x: x[1] < self.prey_radius * (pred_count+1))
             .without_distance()  # removes distance (?)
             .filter_kind(Prey)
             .count()
@@ -267,7 +252,7 @@ class Selection(Enum):
     DEATH_THR = auto()
 
 
-class PPLive(Simulation):
+class PPLive(HeadlessSimulation):
     selection: Selection = Selection.REP_THR
     config: PPConfig
 
@@ -332,10 +317,10 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 1
+num_runs = 30
 simulation_durations = []
 
-for run in range(22, 50):
+for run in range(num_runs):
     csv_filename = f"flocking_with_fear_{run}.csv"
     duration = run_simulation(csv_filename)
     simulation_durations.append(duration)
