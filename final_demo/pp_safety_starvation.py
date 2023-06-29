@@ -184,7 +184,7 @@ class Prey(Agent):
             self.pos += self.move * self.config.delta_time  # wandering
 
 
-class PPLive(HeadlessSimulation):
+class PPLive(Simulation):
     config: PPConfig
 
     def after_update(self):

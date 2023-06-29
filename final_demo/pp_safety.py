@@ -30,7 +30,7 @@ class PPConfig(Config):
     prob_reproduce: float = 0.5
     fear_factor: float = 0.0005 #10 predators to never reproduce
     num_predators: int = 0
-    # lifespan: int = 100
+    lifespan: int = 100
 
 
 class Predator(Agent):
@@ -144,7 +144,7 @@ class Prey(Agent):
         self.fear_factor = self.config.fear_factor
         self.num_predators= self.config.num_predators
         self.counter = counter
-        # self.lifespan = self.config.lifespan
+        self.lifespan = self.config.lifespan
 
     def update(self):
 
@@ -163,8 +163,8 @@ class Prey(Agent):
         agent_type = self.agent_type
         self.save_data("agent", agent_type)
 
-        # if self.counter > self.lifespan:
-        #     self.kill()
+        if self.counter > self.lifespan:
+            self.kill()
 
     def change_position(self):
         self.there_is_no_escape()

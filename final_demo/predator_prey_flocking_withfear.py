@@ -36,7 +36,7 @@ class PPConfig(Config):
     reproduction_chance: float = 0.0009  # 0.003
     # image_rotation: bool = True
     # movement_speed: int = 3
-    # radius: int = 10
+    prey_radius: int = 25
     # seed: int = 1
     # counter: int = 120 #check counter later
     prob_reproduce: float = 0.8
@@ -65,10 +65,9 @@ class Predator(Agent):
         self.simulation = simulation
 
     def update(self):
+        #self.config.radius =
         if self.energy >= self.full_threshold:
             self.state = 'FULL'
-
-
         else:
             self.state = 'WANDERING'
 
@@ -130,10 +129,11 @@ class Prey(Agent):
         self.reproduction_chance = self.config.reproduction_chance
         self.fear_factor = self.config.fear_factor
         self._still_stuck = False
+        self.prey_radius = self.config.prey_radius
 
 
     def update(self):
-        sheep_count = self.in_proximity_accuracy().count()
+        #sheep_count = self.in_proximity_accuracy().count()
         # if sheep_count < 50: # reproduce only if the number is below something
         #     print("SC", sheep_count)
         #should_reproduce = random.random()
@@ -162,17 +162,26 @@ class Prey(Agent):
         cohesion_weight = self.config.cohesion_weight
         separation_weight = self.config.separation_weight
 
-        neighbours_count = self.in_proximity_accuracy().count()
+        #neighbor_count = self.in_proximity_accuracy().count()
+        pred_count = self.in_proximity_accuracy().filter_kind(Predator).count()
 
-        if neighbours_count > 0:
-            friends = list(self.in_proximity_accuracy().filter_kind(Prey))
+        prey_count = (
+            self.in_proximity_accuracy()
+            .filter(lambda x: x[1] < self.prey_radius * (pred_count))
+            .without_distance()  # removes distance (?)
+            .filter_kind(Prey)
+            .count()
+        )
+
+        if prey_count > 0:
+            friends = list(self.in_proximity_accuracy().filter(lambda x: x[1] < self.prey_radius).filter_kind(Prey))
             for agent, _ in friends:
                 if self.pos.distance_to(agent.pos) <= 20:
                     separation_weight = 0.7
                 else:
                     separation_weight = self.config.separation_weight
 
-        if neighbours_count != 0:
+        if prey_count != 0:
             sum_velocities = Vector2()
             separation = Vector2()
             sum_positions = Vector2()
@@ -182,12 +191,12 @@ class Prey(Agent):
                 separation += self.pos - agent.pos
                 sum_positions += agent.pos
             # alignment
-            sum_velocities = sum_velocities / neighbours_count
+            sum_velocities = sum_velocities / prey_count
             alignment = sum_velocities - self.move
             # separation
-            separation = separation / neighbours_count
+            separation = (separation / prey_count)
             # cohesion
-            avg_pos_neighbouring_birds = sum_positions / neighbours_count
+            avg_pos_neighbouring_birds = sum_positions / prey_count
             cohesion_force = avg_pos_neighbouring_birds - self.pos
             cohesion = cohesion_force - self.move
 
@@ -258,7 +267,7 @@ class Selection(Enum):
     DEATH_THR = auto()
 
 
-class PPLive(HeadlessSimulation):
+class PPLive(Simulation):
     selection: Selection = Selection.REP_THR
     config: PPConfig
 
@@ -296,7 +305,7 @@ def run_simulation(csv_filename):
         prob_reproduce=0.8,
         image_rotation=True,
         movement_speed=3,
-        radius=50,  # for flocking its 50 not 150
+        radius=50,#50,  # for flocking its 50 not 150
         seed=5
     )
 
@@ -323,7 +332,7 @@ def generate_csv_filename(parameters: dict, run_index: int):
 
 # Run the simulation multiple times with different parameter combinations
 total_duration = 0
-num_runs = 50
+num_runs = 1
 simulation_durations = []
 
 for run in range(22, 50):
