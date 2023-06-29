@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_pattern = "no_camouflage_{}.csv"
+file_pattern = "camouflage_{}.csv"
 num_files = 50
 
 # Read and merge the CSV files
@@ -23,10 +23,11 @@ for i in range(num_files):
             # pl.col("id").count().alias("total count"),
             pl.col("agent").eq(0).sum().alias("pred_count"),
             pl.col("agent").eq(1).sum().alias("prey_count"),
-            pl.col("id").count().alias("total count"),
+            # pl.col("id").count().alias("total count"),
 
         ]
     )
+    .with_columns((pl.col("prey_count") / pl.col("pred_count")).alias("proportion"))
     .sort("simulated_seconds")
     .collect()
 
@@ -44,23 +45,24 @@ print(pandas_df1)
 # green_median = pandas_df1.groupby('simulated_seconds')['green_count'].median()
 pred_median = pandas_df1.groupby('simulated_seconds')['pred_count'].median()
 prey_median = pandas_df1.groupby('simulated_seconds')['prey_count'].median()
-
+prop_median = pandas_df1.groupby('simulated_seconds')['proportion'].median()
 # Plotting
-plt.plot(pred_median.index, pred_median.values, label='Predator Median')
-plt.plot(prey_median.index, prey_median.values, label='Prey Median')
+# plt.plot(pred_median.index, pred_median.values, label='Predator Median')
+# plt.plot(prey_median.index, prey_median.values, label='Prey Median')
+plt.plot(prop_median.index, prop_median.values, label='Proportion of Prey to Predator')
 plt.xlabel('Simulated Seconds')
-plt.ylabel('Median')
-plt.title('No Camouflage Scenario: Predator and Prey Median Count Over Time')
+plt.ylabel('Proportion')
+plt.title('Camouflage Scenario: Predator and Prey Proportion Over Time')
 plt.legend()
 
 # plt.ylim(0, 700)
 # Display the plot
 plt.show()
-
-print("Predator Median:")
-print(pred_median)
-print("Prey Median:")
-print(prey_median)
+#
+# print("Predator Median:")
+# print(pred_median)
+# print("Prey Median:")
+# print(prey_median)
 # print("Red Median:")
 # print(red_median)
 # print("Green Median:")
