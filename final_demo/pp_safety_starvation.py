@@ -170,7 +170,7 @@ class Prey(Agent):
 
         if self.state == "HIDING":
             self.counter += 1
-            print(self.counter)
+            # print(self.counter)
             if self.counter > 40:
                 self.freeze_movement()
         else:
@@ -184,7 +184,7 @@ class Prey(Agent):
             self.pos += self.move * self.config.delta_time  # wandering
 
 
-class PPLive(Simulation):
+class PPLive(HeadlessSimulation):
     config: PPConfig
 
     def after_update(self):
@@ -220,7 +220,7 @@ def run_simulation(csv_filename):
         movement_speed=3,
         radius=100,
         fear_factor = 0.0005,
-        # lifespan = 500
+        lifespan = 300
     )
 
     start_time = time.time()
