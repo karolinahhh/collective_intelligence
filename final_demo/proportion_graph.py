@@ -5,7 +5,7 @@ import pandas as pd
 
 
 file_pattern = "safety_starvation_{}.csv"
-num_files = 30
+num_files = 40
 
 # Read and merge the CSV files
 dfs = []
