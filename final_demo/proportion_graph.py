@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-file_pattern = "safety_{}.csv"
+file_pattern = "safety_starvation_{}.csv"
 num_files = 30
 
 # Read and merge the CSV files
@@ -44,13 +44,13 @@ plt.plot(pred_median.index, pred_median.values, label='Predator Median')
 plt.plot(prey_median.index, prey_median.values, label='Prey Median')
 plt.xlabel('Simulated Seconds')
 plt.ylabel('Median')
-plt.title('Safety without fear Scenario: Predator and Prey Median Over Time')
+plt.title('Safety with fear Scenario: Predator and Prey Median Over Time')
 plt.legend()
 # plt.ylim(0, 190)
 
 # Save the end times to an Excel file
 end_times_df = pd.DataFrame({'Case': range(num_files), 'End Time (Simulated Seconds)': end_times})
-end_times_df.to_excel('safety_no_fear_end_times.xlsx', index=False)
+end_times_df.to_excel('safety_with_fear_end_times.xlsx', index=False)
 
 # Display the plot
 plt.show()
